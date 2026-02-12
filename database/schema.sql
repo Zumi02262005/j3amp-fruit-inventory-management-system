@@ -1,0 +1,3 @@
+-- J3AMP Fruit Inventory Management System
+-- Created 2026-02-13
+-- Authors: Juan Carlos Pajarillo, Gabriel Manzano Gutierrez, Marc Kevin Katsuya, Joshua Lawrence Patron
