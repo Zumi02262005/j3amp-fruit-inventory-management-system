@@ -22,6 +22,7 @@ CREATE TABLE users (
     email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(20),
     role ENUM('admin', 'inbound', 'outbound') NOT NULL,
+    status ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by INT NULL,
     last_login TIMESTAMP NULL,
