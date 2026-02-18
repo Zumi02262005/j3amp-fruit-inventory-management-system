@@ -39,4 +39,6 @@ JWT_EXPIRES_IN=8h
 CLIENT_URL=http://localhost:5173
 ```
 
+List of Ports
+
 
