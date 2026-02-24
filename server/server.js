@@ -67,11 +67,9 @@ const startServer = async () => {
     await testConnection();
     
     // Start server AFTER database connects
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`); // ✅ Fixed
-      console.log(`📱 Environment: ${process.env.NODE_ENV || 'development'}`); // ✅ Fixed
-      console.log(`🌐 CORS enabled for: ${process.env.CLIENT_URL || 'http://localhost:3000'}`); // ✅ Fixed
-    });
+    // ✅ dynamic — works everywhere
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
     console.error('❌ Failed to start server:', error);
     process.exit(1);

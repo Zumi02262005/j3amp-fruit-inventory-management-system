@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/admin-dashboard';
 import './App.css';
 
 function App() {
@@ -16,10 +16,10 @@ function App() {
           
           {/* Protected Routes */}
           <Route 
-            path="/dashboard" 
+            path="/admin-dashboard" 
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <AdminDashboard />
               </ProtectedRoute>
             } 
           />

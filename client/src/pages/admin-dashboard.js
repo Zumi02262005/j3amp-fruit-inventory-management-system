@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import './admin-dashboard.css';
 import notification_bell from '../assets/icons/notification_bell.svg';
 import profile_icon from '../assets/icons/profile_icon.svg';
 import generate_report_icon from '../assets/icons/generate_report_icon.svg';
