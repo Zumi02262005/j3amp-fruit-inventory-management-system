@@ -21,7 +21,7 @@ const Login = () => {
       const result = await login(username, password);
       setLoading(false);
       if (result.success) {
-        navigate('/dashboard');
+        navigate('/admin-dashboard');
       } else {
         setError(result.error);
       }
