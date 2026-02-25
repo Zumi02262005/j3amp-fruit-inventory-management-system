@@ -1,0 +1,37 @@
+.inventory-container {
+    padding: 20px;
+    background-color: #1a1a1a;
+    color: white;
+    min-height: 100vh;
+}
+
+.inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.inventory-table th, .inventory-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+}
+
+.inventory-table th {
+    background-color: #333;
+    color: #ff8c00; /* Orange accent */
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+.inventory-table tr:hover {
+    background-color: #383838;
+}
+
+/* Status Colors */
+.status-active { color: #4caf50; font-weight: bold; }
+.status-low { color: #ff9800; font-weight: bold; }
+.status-out { color: #f44336; font-weight: bold; }

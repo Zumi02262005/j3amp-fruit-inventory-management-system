@@ -3,11 +3,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-// Import database configuration - Using promisePool to fix the await error
 const { promisePool, testConnection } = require('./config/database'); 
 const authRoutes = require('./routes/authRoutes');
 
-// Create Express app
 const app = express();
 
 // Middleware
@@ -24,25 +22,31 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- START OF REPORTING SYSTEM ---
+// START OF REPORTING SYSTEM 
 
-// 1. Total Stock Report (Using 'products' table from schema)
+// Total Stock Report 
 app.get('/api/reports/total-stock', async (req, res) => {
     try {
-        const [rows] = await promisePool.query(
-            'SELECT name as fruit_name, status as total_quantity FROM products'
-        );
+        // This calculates the SUM of all batches for each fruit
+        const [rows] = await promisePool.query(`
+            SELECT 
+                i.product_name as fruit_name, 
+                SUM(b.remaining_quantity) as total_quantity 
+            FROM inventory i
+            LEFT JOIN batches b ON i.sku = b.sku
+            GROUP BY i.sku
+        `);
         res.json({ success: true, data: rows });
     } catch (err) {
         res.status(500).json({ success: false, message: "Error fetching stock report", error: err.message });
     }
 });
 
-// 2. Expiring Soon Report (Using 'batches' table from schema)
+// Expiring Soon Report 
 app.get('/api/reports/expiring-soon', async (req, res) => {
     try {
         const [rows] = await promisePool.query(
-            'SELECT * FROM batches WHERE expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)'
+            'SELECT * FROM batches WHERE expiration_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)'
         );
         res.json({ success: true, data: rows });
     } catch (err) {
@@ -50,7 +54,7 @@ app.get('/api/reports/expiring-soon', async (req, res) => {
     }
 });
 
-// 3. Activity Logs (Using 'activity_logs' and 'user_id' from schema)
+// Activity Logs
 app.get('/api/reports/activity', async (req, res) => {
     try {
         const [rows] = await promisePool.query(
@@ -62,9 +66,33 @@ app.get('/api/reports/activity', async (req, res) => {
     }
 });
 
-// --- END OF REPORTING SYSTEM ---
 
-// Routes
+// INBOUND MODULE: RECEIVE STOCK 
+
+app.post('/api/inventory/receive', async (req, res) => {
+    const { sku, quantity, expiration_date, supplier_name, received_by } = req.body;
+
+    try {
+        // Create a new batch for this shipment
+        await promisePool.query(
+            'INSERT INTO batches (sku, quantity, remaining_quantity, expiration_date, supplier_name, received_by) VALUES (?, ?, ?, ?, ?, ?)',
+            [sku, quantity, quantity, expiration_date, supplier_name, received_by]
+        );
+
+        // Log the activity
+        await promisePool.query(
+            'INSERT INTO activity_logs (user_id, action, details) VALUES (?, ?, ?)',
+            [received_by, 'RECEIVE_STOCK', `Received ${quantity} units of ${sku}`]
+        );
+
+        res.json({ success: true, message: "Stock received and logged!" });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+
+// Standard Routes
 app.get('/', (req, res) => {
   res.json({
     message: 'J3AMP Inventory Management System API',
@@ -91,19 +119,15 @@ app.use((err, req, res, next) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
-
 const startServer = async () => {
   try {
     await testConnection();
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error(' Failed to start server:', error);
     process.exit(1);
   }
 };
 
 startServer();
-console.log("query type:", promisePool.query.constructor.name);

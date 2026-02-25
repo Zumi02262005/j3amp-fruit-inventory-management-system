@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import './Dashboard.css';
+import './admin-dashboard.css';
 import notification_bell from '../assets/icons/notification_bell.svg';
 import profile_icon from '../assets/icons/profile_icon.svg';
 import generate_report_icon from '../assets/icons/generate_report_icon.svg';
@@ -13,9 +13,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // --- NEW FUNCTIONS TO MAKE BUTTONS WORK ---
-
-  // 1. Logic for Generate Report
+  //  Logic for Generate Report
   const handleGenerateReport = async () => {
     try {
       const response = await fetch('http://localhost:5000/api/reports/total-stock');
@@ -28,13 +26,16 @@ const Dashboard = () => {
     }
   };
 
-  // 2. Logic for View Inventory
+  //  Logic for View Inventory
   const handleViewInventory = () => {
     // This tells the app to go to the Inventory screen
     navigate('/inventory'); 
   };
+  const handleReceiveStock = () => {
+    navigate('/receive-stock'); 
+  };
 
-  // 3. Logic for Manage Users (Admins only)
+  // Logic for Manage Users (Admins only)
   const handleManageUsers = () => {
     if (user?.role === 'Admin') {
       navigate('/users');
