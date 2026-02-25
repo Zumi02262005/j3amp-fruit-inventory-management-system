@@ -9,35 +9,39 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import AdminDashboard from './pages/admin-dashboard'; 
 import Inventory from './pages/Inventory';
-import ReceiveStock from './pages/ReceiveStock';
+
+// Using your specific file spelling and casing
+import RecieveStock from './pages/RecieveStock'; 
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Public Route */}
           <Route path="/login" element={<Login />} />
           
+          {/* Protected Phase 2 Routes */}
           <Route path="/admin-dashboard" element={
             <ProtectedRoute>
               <AdminDashboard />
             </ProtectedRoute>
           } />
 
-          {/* Route for Inventory Page */}
           <Route path="/inventory" element={
             <ProtectedRoute>
               <Inventory />
             </ProtectedRoute>
           } />
 
-          {/* Route for Receive Stock Page */}
+          {/* Route for Inbound Module (Receive Stock) */}
           <Route path="/receive-stock" element={
             <ProtectedRoute>
-              <ReceiveStock />
+              <RecieveStock />
             </ProtectedRoute>
           } />
 
+          {/* Redirects */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

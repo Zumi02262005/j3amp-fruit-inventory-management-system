@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Inventory.css'; // Create this for styling
+import './Inventory.css'; 
 
 const Inventory = () => {
     const [items, setItems] = useState([]);
@@ -11,8 +11,12 @@ const Inventory = () => {
         const fetchInventory = async () => {
             try {
                 const response = await fetch('http://localhost:5000/api/inventory');
-                const data = await response.json();
-                setItems(data);
+                const result = await response.json();
+                
+                // Note: We check for result.data because our API sends { success: true, data: [...] }
+                if (result.success) {
+                    setItems(result.data);
+                }
             } catch (err) {
                 console.error("Failed to load inventory:", err);
             }
@@ -22,16 +26,16 @@ const Inventory = () => {
 
     return (
         <div className="inventory-container">
-            <header>
-                <button onClick={() => navigate('/admin-dashboard')}>← Back</button>
+            <header className="page-header">
+                <button onClick={() => navigate('/admin-dashboard')} className="back-btn">← Back</button>
                 <h1>Current Fruit Inventory</h1>
             </header>
 
             <table className="inventory-table">
                 <thead>
                     <tr>
-                        <th>SKU</th>
-                        <th>Product Name</th>
+                        <th>Product Code</th>
+                        <th>Fruit Name</th>
                         <th>Supplier</th>
                         <th>Stock Level</th>
                         <th>Status</th>
@@ -40,16 +44,23 @@ const Inventory = () => {
                 <tbody>
                     {items.length > 0 ? (
                         items.map((item) => (
-                            <tr key={item.sku}>
-                                <td>{item.sku}</td>
-                                <td>{item.product_name}</td>
-                                <td>{item.supplier}</td>
-                                <td>{item.total_weight} kg</td>
-                                <td className={`status-${item.status}`}>{item.status}</td>
+                            // Use product_code as the unique key from your SQL
+                            <tr key={item.product_code}>
+                                <td>{item.product_code}</td>
+                                <td>{item.name}</td> 
+                                <td>{item.supplier || 'N/A'}</td>
+                                <td>{item.stock_level || 0} kg</td>
+                                <td className={`status-${item.status?.toLowerCase()}`}>
+                                    {item.status}
+                                </td>
                             </tr>
                         ))
                     ) : (
-                        <tr><td colSpan="5">No fruit data found. Run your SQL script!</td></tr>
+                        <tr>
+                            <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                                No fruit data found. Check your database connections!
+                            </td>
+                        </tr>
                     )}
                 </tbody>
             </table>

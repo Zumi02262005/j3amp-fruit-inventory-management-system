@@ -35,4 +35,9 @@ CREATE TABLE IF NOT EXISTS users (
     role ENUM('admin', 'inbound', 'outbound') NOT NULL
 );
 
+INSERT INTO inventory (product_code, name, category, status) 
+VALUES 
+('APP-01', 'Red Apples', 'Pome', 'Active'),
+('MNG-01', 'Carabao Mango', 'Tropical', 'Active');
+
 ALTER TABLE activity_logs ADD COLUMN ip_address VARCHAR(45) AFTER description;

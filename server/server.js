@@ -22,19 +22,62 @@ app.use((req, res, next) => {
   next();
 });
 
-// START OF REPORTING SYSTEM 
+// --- PHASE 2: INVENTORY & REPORTING SYSTEM ---
 
-// Total Stock Report 
-app.get('/api/reports/total-stock', async (req, res) => {
+// 1. GET CURRENT INVENTORY (Matches your inventory & batches tables)
+app.get('/api/inventory', async (req, res) => {
     try {
-        // This calculates the SUM of all batches for each fruit
         const [rows] = await promisePool.query(`
             SELECT 
-                i.product_name as fruit_name, 
-                SUM(b.remaining_quantity) as total_quantity 
+                i.product_code, 
+                i.name, 
+                b.supplier_name as supplier, 
+                SUM(b.quantity) as stock_level, 
+                i.status
             FROM inventory i
-            LEFT JOIN batches b ON i.sku = b.sku
-            GROUP BY i.sku
+            LEFT JOIN batches b ON i.product_code = b.product_code
+            GROUP BY i.product_code, i.name, b.supplier_name, i.status
+        `);
+        res.json({ success: true, data: rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: "Error fetching inventory", error: err.message });
+    }
+});
+
+// 2. RECEIVE STOCK (Matches your batches & activity_logs tables)
+app.post('/api/inventory/receive', async (req, res) => {
+    const { product_code, quantity, expiry_date, supplier_name, batch_number, user_id } = req.body;
+
+    try {
+        // Create new batch in 'batches' table
+        await promisePool.query(
+            'INSERT INTO batches (product_code, quantity, batch_number, expiry_date, supplier_name) VALUES (?, ?, ?, ?, ?)',
+            [product_code, quantity, batch_number || `BAT-${Date.now()}`, expiry_date, supplier_name]
+        );
+
+        // Log the activity in 'activity_logs' table (Matches your action_type & description)
+        await promisePool.query(
+            'INSERT INTO activity_logs (user_id, action_type, description) VALUES (?, ?, ?)',
+            [user_id || 'admin', 'STOCK_IN', `Received ${quantity} units of ${product_code}`]
+        );
+
+        res.json({ success: true, message: "Stock received and logged!" });
+    } catch (err) {
+        console.error("Database Error:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// 3. REPORTS: Total Stock Summary
+app.get('/api/reports/total-stock', async (req, res) => {
+    try {
+        const [rows] = await promisePool.query(`
+            SELECT 
+                i.name as fruit_name, 
+                SUM(b.quantity) as total_quantity 
+            FROM inventory i
+            LEFT JOIN batches b ON i.product_code = b.product_code
+            GROUP BY i.product_code, i.name
         `);
         res.json({ success: true, data: rows });
     } catch (err) {
@@ -42,11 +85,11 @@ app.get('/api/reports/total-stock', async (req, res) => {
     }
 });
 
-// Expiring Soon Report 
+// 4. REPORTS: Expiring Soon (Uses your 'expiry_date' column)
 app.get('/api/reports/expiring-soon', async (req, res) => {
     try {
         const [rows] = await promisePool.query(
-            'SELECT * FROM batches WHERE expiration_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)'
+            'SELECT * FROM batches WHERE expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)'
         );
         res.json({ success: true, data: rows });
     } catch (err) {
@@ -54,43 +97,7 @@ app.get('/api/reports/expiring-soon', async (req, res) => {
     }
 });
 
-// Activity Logs
-app.get('/api/reports/activity', async (req, res) => {
-    try {
-        const [rows] = await promisePool.query(
-            'SELECT a.*, u.username FROM activity_logs a JOIN users u ON a.user_id = u.user_id ORDER BY a.created_at DESC LIMIT 10'
-        );
-        res.json({ success: true, data: rows });
-    } catch (err) {
-        res.status(500).json({ success: false, message: "Error fetching activity", error: err.message });
-    }
-});
-
-
-// INBOUND MODULE: RECEIVE STOCK 
-
-app.post('/api/inventory/receive', async (req, res) => {
-    const { sku, quantity, expiration_date, supplier_name, received_by } = req.body;
-
-    try {
-        // Create a new batch for this shipment
-        await promisePool.query(
-            'INSERT INTO batches (sku, quantity, remaining_quantity, expiration_date, supplier_name, received_by) VALUES (?, ?, ?, ?, ?, ?)',
-            [sku, quantity, quantity, expiration_date, supplier_name, received_by]
-        );
-
-        // Log the activity
-        await promisePool.query(
-            'INSERT INTO activity_logs (user_id, action, details) VALUES (?, ?, ?)',
-            [received_by, 'RECEIVE_STOCK', `Received ${quantity} units of ${sku}`]
-        );
-
-        res.json({ success: true, message: "Stock received and logged!" });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
+// --- END OF PHASE 2 ROUTES ---
 
 // Standard Routes
 app.get('/', (req, res) => {
@@ -108,7 +115,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: 'Route not found' });
 });
 
-// Error handler
+// Global Error handler
 app.use((err, req, res, next) => {
   console.error('Server error:', err);
   res.status(500).json({
