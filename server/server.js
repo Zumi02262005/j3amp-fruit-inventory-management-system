@@ -22,9 +22,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- PHASE 2: INVENTORY & REPORTING SYSTEM ---
 
-// 1. GET CURRENT INVENTORY (Matches your inventory & batches tables)
+// GET CURRENT INVENTORY 
 app.get('/api/inventory', async (req, res) => {
     try {
         const [rows] = await promisePool.query(`
@@ -44,7 +43,7 @@ app.get('/api/inventory', async (req, res) => {
     }
 });
 
-// 2. RECEIVE STOCK (Matches your batches & activity_logs tables)
+// RECEIVE STOCK 
 app.post('/api/inventory/receive', async (req, res) => {
     const { product_code, quantity, expiry_date, supplier_name, batch_number, user_id } = req.body;
 
@@ -55,7 +54,7 @@ app.post('/api/inventory/receive', async (req, res) => {
             [product_code, quantity, batch_number || `BAT-${Date.now()}`, expiry_date, supplier_name]
         );
 
-        // Log the activity in 'activity_logs' table (Matches your action_type & description)
+        // Log the activity in 'activity_logs' table 
         await promisePool.query(
             'INSERT INTO activity_logs (user_id, action_type, description) VALUES (?, ?, ?)',
             [user_id || 'admin', 'STOCK_IN', `Received ${quantity} units of ${product_code}`]
@@ -68,7 +67,7 @@ app.post('/api/inventory/receive', async (req, res) => {
     }
 });
 
-// 3. REPORTS: Total Stock Summary
+// REPORTS: Total Stock Summary
 app.get('/api/reports/total-stock', async (req, res) => {
     try {
         const [rows] = await promisePool.query(`
@@ -85,7 +84,7 @@ app.get('/api/reports/total-stock', async (req, res) => {
     }
 });
 
-// 4. REPORTS: Expiring Soon (Uses your 'expiry_date' column)
+// REPORTS: Expiring Soon (Uses your 'expiry_date' column)
 app.get('/api/reports/expiring-soon', async (req, res) => {
     try {
         const [rows] = await promisePool.query(
@@ -97,7 +96,6 @@ app.get('/api/reports/expiring-soon', async (req, res) => {
     }
 });
 
-// --- END OF PHASE 2 ROUTES ---
 
 // Standard Routes
 app.get('/', (req, res) => {
