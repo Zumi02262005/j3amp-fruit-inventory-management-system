@@ -1,75 +1,59 @@
 .login-container {
   min-height: 100vh;
   display: flex;
-  align-items: center;
   flex-direction: column;
-  background: linear-gradient(206deg, #FFA770 3.27%, #FF6200 48.31%);
+  align-items: center;
+  justify-content: space-between; /* Pushes card to the bottom on mobile */
+  background: linear-gradient(206deg, #ffa770 3%, #ff6200 48%);
+  box-sizing: border-box;
 }
 
 .logo {
-  margin-top:93px;
-  margin-bottom: 8rem;
-}
-
-.login-background-1, .login-background-2, .login-card{
-  grid-area: 1 / 1;
+  /* Fluid margins: adapts to screen height so it doesn't break small screens */
+  margin: clamp(2rem, 10vh, 6rem) 0 clamp(1rem, 5vh, 4rem);
 }
 
 .background-container {
-  display: grid;
-  place-items: center;
-}
-
-.login-background-1 {
-  z-index: 1;
-  scale: 1.15;
-}
-
-.login-background-2 {
-  transform: translate(20px,-15px);
-  z-index: 0;
-  scale: 1.15;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .login-card {
-  background-color: transparent;
-  z-index: 2;
+  width: 100%;
+  max-width: 480px; /* Caps width on tablets/desktops */
+  min-height: 60vh;
+  background: #fff;
   padding: 2rem;
-  width: 300px;
+  border-radius: 30px 30px 0 0; /* Bottom sheet style */
   display: flex;
   flex-direction: column;
-  gap: 1rem;
   justify-content: center;
   align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
 }
 
-.login-card form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.login-card form,
+.input-group {
   width: 100%;
 }
 
-.welcome-text{
-  color: #000;
+.welcome-text {
+  font:
+    500 30px/normal Inter,
+    sans-serif; /* Shorthand */
+  margin-bottom: 1.5rem;
   text-align: center;
-  font-family: Inter;
-  font-size: 30px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  margin-bottom: 0.5rem;
 }
 
 .error-message {
-  min-height: 2.5rem;
-  background-color: #fee;
+  background: #fee;
   color: #c33;
   padding: 0.75rem;
   border-radius: 8px;
   margin-bottom: 1rem;
   text-align: center;
-  font-size: 0.9rem;
 }
 
 .input-group {
@@ -79,40 +63,42 @@
 .input-group input {
   width: 100%;
   padding: 0.875rem 1rem;
-  border: none;
+  border: 2px solid transparent; /* Prevents layout jump on focus */
   border-radius: 13px;
-  background: #F9F9F9;
-  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-  font-size: 1rem;
-  transition: all 0.3s;
+  background: #f9f9f9;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   box-sizing: border-box;
+  transition: all 0.3s;
+  font-size: 1rem;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #FF6B35;
+  border-color: #ff6b35;
   box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
 
-.input-group input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
 .login-button {
-  align-self: center;
-  width: 181.188px;
-  height: 52px;
+  width: 180px;
   padding: 0.875rem;
   border-radius: 22px;
-  background: linear-gradient(90deg, rgba(255, 98, 0, 0.20) 0%, rgba(255, 206, 175, 0.20) 51.6%, rgba(255, 98, 0, 0.20) 98.56%), #FF6200;
-  color: white;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 98, 0, 0.2) 0%,
+      rgba(255, 206, 175, 0.2) 52%,
+      rgba(255, 98, 0, 0.2) 99%
+    ),
+    #ff6200;
+  color: #fff;
   border: none;
-  font-size: 1rem;
-  font-weight: 600;
+  font: 600 1rem sans-serif;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  margin-top: 0.5rem;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  margin: 0.5rem auto 0;
+  display: block;
 }
 
 .login-button:hover:not(:disabled) {
@@ -120,33 +106,43 @@
   box-shadow: 0 5px 20px rgba(255, 107, 53, 0.3);
 }
 
-.login-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
+/* Combined disabled states */
+.input-group input:disabled,
 .login-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  background-color: #f5f5f5;
 }
 
+/* Combined footer classes */
 .login-footer {
   margin-top: 1.5rem;
   text-align: center;
-}
-
-.new-user {
   color: #666;
   font-size: 0.9rem;
 }
 
 .signup-link {
-  color: #FF6B35;
+  color: #ff6b35;
   font-weight: 600;
   cursor: pointer;
   transition: color 0.2s;
 }
 
 .signup-link:hover {
-  color: #FF8C42;
+  color: #ff8c42;
   text-decoration: underline;
+}
+
+/* --- Desktop Responsiveness --- */
+@media (min-width: 600px) {
+  .login-container {
+    justify-content: center; /* Center everything vertically */
+    padding: 2rem;
+  }
+  .login-card {
+    border-radius: 30px; /* Rounds all corners instead of just the top */
+    min-height: auto; /* Removes the bottom-sheet stretch */
+    padding: 3rem 2rem;
+  }
 }

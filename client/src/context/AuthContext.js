@@ -1,5 +1,5 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import { authAPI } from "../services/api";
 
 const AuthContext = createContext(null);
 
@@ -11,8 +11,8 @@ export const AuthProvider = ({ children }) => {
   // Check if user is already logged in on mount
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      const savedUser = localStorage.getItem('user');
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
 
       if (token && savedUser) {
         try {
@@ -20,9 +20,9 @@ export const AuthProvider = ({ children }) => {
           await authAPI.verifyToken();
           setUser(JSON.parse(savedUser));
         } catch (err) {
-          console.error('Token verification failed:', err);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          console.error("Token verification failed:", err);
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
           setUser(null);
         }
       }
@@ -32,29 +32,30 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (username, password) => {  // ✅ Changed from email
+  const login = async (username, password) => {
+    // ✅ Changed from email
     try {
       setError(null);
-      const response = await authAPI.login(username, password);  // ✅ Changed
-      
+      const response = await authAPI.login(username, password); // ✅ Changed
+
       const { token, user } = response.data;
 
       // Save to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
       setUser(user);
       return { success: true };
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Login failed';
+      const errorMessage = err.response?.data?.message || "Login failed";
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
     setError(null);
   };
@@ -75,7 +76,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };

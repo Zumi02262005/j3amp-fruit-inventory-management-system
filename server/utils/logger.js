@@ -1,20 +1,52 @@
-const { promisePool } = require('../config/database');
+const { promisePool } = require("../config/database");
 
-const logActivity = async (userId, action, details, ipAddress, userAgent) => {
+const logActivity = async (userId, action, details) => {
   try {
-    // Check if activity_logs table exists
-    // If not, just log to console (we'll create table in Phase 2)
     await promisePool.execute(
-      `INSERT INTO activity_logs (user_id, action, details, ip_address, user_agent, created_at) 
-       VALUES (?, ?, ?, ?, ?, NOW())`,
-      [userId, action, details, ipAddress || 'unknown', userAgent || 'unknown']
+      `INSERT INTO activity_logs (user_id, action, details) 
+       VALUES (?, ?, ?)`,
+      [userId, action, details],
     );
-    console.log(`📝 Activity logged: ${action} for user ${userId || 'unknown'}`);
+    console.log(
+      `📝 Activity logged: ${action} for user ${userId || "unknown"}`,
+    );
   } catch (error) {
-    // Don't crash if logging fails - just log to console
-    console.warn('⚠️ Failed to log activity to database:', error.message);
+    console.warn("⚠️ Failed to log activity to database:", error.message);
     console.log(`📝 Activity (console only): ${action} - ${details}`);
   }
 };
 
-module.exports = { logActivity };
+const recentActivity = async (req, res) => {
+  if (req.user.role !== 'admin' || !req.user){
+    return res.status(403).json({
+      success: false,
+      message: 'Forbidden'
+    });
+  }
+  try {
+    const query = `
+    SELECT a.log_id, a.user_id, a.action, a.details, a.log_date 
+    FROM activity_logs a 
+    ORDER BY a.log_date DESC 
+    LIMIT 10
+    `;
+
+    const [activity_logs] = await promisePool.execute(query);
+
+    res.json({
+      success: true,
+      data: activity_logs,
+    });
+  } catch (error) {
+    console.error("View recent activity error: ", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+}
+
+module.exports = { 
+  logActivity,
+  recentActivity,
+};

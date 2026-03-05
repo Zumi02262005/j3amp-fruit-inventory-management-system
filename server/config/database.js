@@ -1,9 +1,9 @@
-// Loading the package mysql2 and dotenv to manage environment variables
-const mysql = require('mysql2/promise');
+//Loading the package mysql2 and dotenv to manage environment variables
+const mysql = require('mysql2');
 require('dotenv').config();
 
-// Creating a connection pool to the MySQL database using environment variables for configuration
-const promisePool = mysql.createPool({
+//Creating a connection pool to the MySQL database using environment variables for configuration
+const pool = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
@@ -14,8 +14,10 @@ const promisePool = mysql.createPool({
     queueLimit: 0
 });
 
+//Promisifying the connection pool to use async/await syntax for database operations
+const promisePool = pool.promise();
 
-// Function to test the database connection by acquiring a connection from the pool and releasing it immediately
+//Function to test the database connection by acquiring a connection from the pool and releasing it immediately
 const testConnection = async () => {
     try{
         const connection = await promisePool.getConnection();
@@ -27,5 +29,5 @@ const testConnection = async () => {
     }
 };
 
-// Exporting the connection pool, promisified pool, and the test connection function for use in other parts of the application
-module.exports = { promisePool, testConnection };
+//Exporting the connection pool, promisified pool, and the test connection function for use in other parts of the application
+module.exports = {pool, promisePool, testConnection};

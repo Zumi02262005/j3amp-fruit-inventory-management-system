@@ -29,39 +29,6 @@ CREATE TABLE users (
     FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
 );
 
--- 1. Create Products Table (Added 'status' or 'total_quantity' for your report)
-CREATE TABLE IF NOT EXISTS inventory (
-    product_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    status VARCHAR(50) DEFAULT 'In Stock', -- Your report uses this for quantity currently
-    category VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 2. Create Batches Table (For the "Expiring Soon" report)
-CREATE TABLE IF NOT EXISTS batches (
-    batch_id INT PRIMARY KEY AUTO_INCREMENT,
-    product_id INT,
-    quantity INT NOT NULL,
-    expiry_date DATE NOT NULL,
-    received_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES inventory(product_id) ON DELETE CASCADE
-);
-
--- 3. Create Activity Logs Table (Fixed the columns for your logger)
-CREATE TABLE IF NOT EXISTS activity_logs (
-    log_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NULL,
-    action VARCHAR(100) NOT NULL,
-    details TEXT,
-    ip_address VARCHAR(45),
-    user_agent TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE SET NULL
-);
-
-
-
 -- Inventory Table
 CREATE TABLE inventory (
     sku VARCHAR(50) PRIMARY KEY,
@@ -144,42 +111,3 @@ CREATE TABLE alerts (
     INDEX index_status (status),
     INDEX index_type(alert_type)
 );
-
--- View for Current Stock Levels
-CREATE VIEW view_current_stock AS
-SELECT
-    i.sku,
-    i.product_name,
-    i.category,
-    i.reorder_point,
-    COALESCE(SUM(b.remaining_quantity), 0) AS total_stock,
-    CASE 
-        WHEN COALESCE(SUM(b.remaining_quantity), 0) < i.reorder_point THEN 'low'
-        WHEN COALESCE(SUM(b.remaining_quantity), 0) = 0 THEN 'out of stock'
-        ELSE  'good'
-    END AS stock_status
-FROM inventory i
-LEFT JOIN batches b ON i.sku = b.sku
-    AND b.status = 'active'
-WHERE i.status = 'active'
-GROUP BY i.sku;
-
--- View for Expiring Batches
-CREATE VIEW view_expiring_batches AS
-SELECT
-    b.batch_id,
-    b.sku,
-    b.remaining_quantity,
-    b.expiration_date,
-    i.product_name,
-    DATEDIFF(b.expiration_date, CURDATE()) AS days_until_expiration,
-    CASE
-        WHEN DATEDIFF(b.expiration_date, CURDATE()) <= 3 THEN 'critical'
-        WHEN DATEDIFF(b.expiration_date, CURDATE()) <= 7 THEN 'warning'
-        ELSE 'good'
-    END AS expiration_status
-FROM batches b
-JOIN inventory i ON b.sku = i.sku
-WHERE b.status = 'active'
-    AND b.remaining_quantity > 0
-ORDER BY b.expiration_date ASC;

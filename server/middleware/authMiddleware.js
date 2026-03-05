@@ -1,14 +1,14 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 // Verify JWT token
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: 'Access token required'
+      message: "Access token required",
     });
   }
 
@@ -16,7 +16,7 @@ const authenticateToken = (req, res, next) => {
     if (err) {
       return res.status(403).json({
         success: false,
-        message: 'Invalid or expired token'
+        message: "Invalid or expired token",
       });
     }
 
@@ -31,7 +31,7 @@ const authorizeRole = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Insufficient permissions.'
+        message: "Access denied. Insufficient permissions.",
       });
     }
     next();
@@ -40,5 +40,5 @@ const authorizeRole = (...roles) => {
 
 module.exports = {
   authenticateToken,
-  authorizeRole
+  authorizeRole,
 };

@@ -1,32 +1,39 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated } = useAuth();
+  const location = useLocation();
 
+  console.log("user:", user, "loading:", loading, "isAuthenticated:", isAuthenticated);
+
+  // 1. Handle the "Wait" state while checking localStorage/token
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        <p>Loading...</p>
+      <div className="loading-screen">
+        <p>Verifying access...</p>
       </div>
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // 2. Not logged in? Send them to login
+  // We save the current location so we can redirect them back after they log in
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Check if user's role is allowed
+  // 3. Logged in, but role not authorized for this specific route?
+  // If allowedRoles is provided (e.g., ['admin']), check if user has it
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />;
+    // If they aren't an admin, send them to their specific default home
+    const defaultPath =
+      user.role === "admin" ? "/admin-dashboard" : "/inventory-home";
+    return <Navigate to={defaultPath} replace />;
   }
+  
 
+  // 4. Authorized! Render the component
   return children;
 };
 
