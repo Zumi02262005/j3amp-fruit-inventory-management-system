@@ -1,0 +1,263 @@
+body {
+  background-color: #efefef;
+}
+
+.inventory-home-container {
+  min-height: 100vh;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-content {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inventory-home-label {
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2rem) 0;
+  color: #000;
+  margin-right: 10vw;
+  font:
+    700 clamp(1.2rem, 4vw, 1.5rem)/1.2 Inter,
+    sans-serif;
+  word-wrap: break-word;
+}
+
+.stock-overview {
+  width: 100%;
+  max-width: 360px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 20px;
+  background: linear-gradient(86deg, #ff6200 22%, #ff8c45 92%);
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  color: #fff;
+}
+
+/* Removed rigid 148px/93px widths so flexbox can breathe */
+.total-stock-section,
+.stock-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.total-stock {
+  font:
+    700 clamp(0.85rem, 3vw, 1rem) Inter,
+    sans-serif;
+}
+.total-stock-amount {
+  font:
+    700 clamp(1.25rem, 6vw, 1.625rem) Inter,
+    sans-serif;
+}
+
+.categories-section,
+.expiring-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expiring,
+.categories {
+  font:
+    700 clamp(0.6rem, 2vw, 0.7rem) Inter,
+    sans-serif;
+}
+.categories-count,
+.expiring-count {
+  font:
+    700 clamp(0.9rem, 3vw, 1.1rem) Inter,
+    sans-serif;
+}
+
+.all-products {
+  background: linear-gradient(135deg, #ff7a00 0%, #ff6200 100%);
+  border-radius: 30px; /* Rounds the top corners like the image */
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+}
+
+.all-products-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.product-sku {
+  color: #ff6200;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.product-details {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.product-details li {
+  margin-bottom: 0.25rem;
+}
+
+.low-stock {
+  background: linear-gradient(77deg, #299d8f 20.19%, #39c8b7 80.26%);
+  border-radius: 30px; /* Rounds the top corners like the image */
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+  margin-bottom: 3rem;
+}
+
+.low-stock-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.low-stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.low-stock-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.low-stock-sku {
+  color: #ff6200;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.low-stock-details {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.low-stock-details li {
+  margin-bottom: 0.25rem;
+}
+
+.expiring-items {
+  background: linear-gradient(77deg, #ffbf00 20.19%, #ffd659 80.26%);
+  border-radius: 30px;
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+  margin-bottom: 3rem;
+}
+
+.expiring-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.expiring-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.expiring-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.expiring-sku {
+  color: #ff6200;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.expiring-details {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.expiring-details li {
+  margin-bottom: 0.25rem;
+}
+
+.view-details-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-details-link {
+  color: #ff6200;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.view-details-link:hover {
+  opacity: 0.7;
+}

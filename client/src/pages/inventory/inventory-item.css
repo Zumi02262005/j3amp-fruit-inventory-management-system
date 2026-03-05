@@ -1,0 +1,143 @@
+body {
+  background-color: #efefef;
+}
+
+.inventory-item-container {
+  min-height: 100vh;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-item-content {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inventory-item-label {
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2rem)
+    clamp(1.3rem, 5vw, 3rem);
+  color: #000;
+  margin-right: 10vw;
+  font:
+    700 clamp(1.2rem, 4vw, 1.5rem)/1.2 Inter,
+    sans-serif;
+  word-wrap: break-word;
+}
+
+.back-to-inventory-link {
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2rem) 0;
+  color: #ff6200;
+  margin-right: 10vw;
+  font:
+    700 clamp(1.2rem, 4vw, 1.5rem)/1.2 Inter,
+    sans-serif;
+  word-wrap: break-word;
+}
+
+.general-details-container {
+  border-radius: 30px;
+  background: linear-gradient(86deg, #ff6200 22.34%, #ff8c45 92.19%);
+  width: 100%;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  font-family: Inter;
+  padding: 1rem 1.5rem;
+}
+
+.general-details-container p {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  font-size: clamp(1.4rem, 4vw, 1.5rem);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.general-details-list {
+  color: #fff;
+  padding-left: 1.5rem;
+}
+
+.stock-details-container {
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  width: 100%;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  font-family: Inter;
+  padding: 1rem 1.5rem;
+}
+
+.stock-details-container p {
+  margin: 0 0 0.5rem 0;
+  color: #ff6200;
+  font-size: clamp(1.4rem, 4vw, 1.5rem);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.stock-details-list {
+  padding-left: 1.5rem;
+}
+
+.batch-details {
+  background: linear-gradient(135deg, #ff7a00 0%, #ff6200 100%);
+  border-radius: 30px;
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+}
+
+.batch-details-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.batch-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.batch-details-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.batch-details-id {
+  color: #ff6200;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.batch-details-info {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.batch-details-info li {
+  margin-bottom: 0.25rem;
+}

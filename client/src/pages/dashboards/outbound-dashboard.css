@@ -1,0 +1,188 @@
+body {
+  background-color: #efefef;
+}
+
+.dashboard-container {
+  min-height: 100vh;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-header {
+  /* Fluid margins: scales down automatically on mobile */
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.dashboard-content {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Typography & Icons ── */
+.dashboard-overview-label {
+  color: #000;
+  margin-right: 10vw;
+  /* Fluid text: minimum 1.2rem, scales with screen, max 1.5rem */
+  font:
+    700 clamp(1.2rem, 4vw, 1.5rem)/1.2 Inter,
+    sans-serif;
+  word-wrap: break-word;
+}
+
+.notification-button,
+.profile-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.notification-button:focus,
+.profile-button:focus {
+  outline: none;
+}
+
+.notification-icon {
+  width: clamp(20px, 6vw, 28px);
+  height: auto;
+  margin-left: 25vw;
+}
+.profile-icon {
+  width: clamp(32px, 10vw, 46px);
+  height: auto;
+}
+
+/* ── Stock Overview (Fixed Text Scaling) ── */
+.stock-overview {
+  width: 100%;
+  max-width: 360px;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 20px;
+  background: linear-gradient(86deg, #ff6200 22%, #ff8c45 92%);
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  color: #fff;
+}
+
+/* Removed rigid 148px/93px widths so flexbox can breathe */
+.total-stock-section,
+.stock-subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.total-stock {
+  font:
+    700 clamp(0.85rem, 3vw, 1rem) Inter,
+    sans-serif;
+}
+.total-stock-amount {
+  font:
+    700 clamp(1.25rem, 6vw, 1.625rem) Inter,
+    sans-serif;
+}
+
+.categories-section,
+.expiring-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.expiring,
+.categories {
+  font:
+    700 clamp(0.6rem, 2vw, 0.7rem) Inter,
+    sans-serif;
+}
+.categories-count,
+.expiring-count {
+  font:
+    700 clamp(0.9rem, 3vw, 1.1rem) Inter,
+    sans-serif;
+}
+
+/* ── Quick Actions ── */
+#admin-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.75rem, 3vw, 1.5rem);
+  width: 100%;
+  max-width: 360px;
+  margin-bottom: 1.5rem;
+}
+
+/* Targets all 4 cards dynamically */
+#admin-quick-actions > * {
+  width: 100%;
+  aspect-ratio: 1 / 0.9; /* Automatically maintains proportion without hardcoding height! */
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#admin-quick-actions > *:hover {
+  background: #f0f0f0;
+}
+
+/* ── Info Cards ── */
+.welcome-section,
+.info-card,
+.next-steps {
+  background: #fff;
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.welcome-section h2,
+.info-card h3,
+.next-steps h3 {
+  margin: 0 0 0.75rem;
+  color: #333;
+  font-size: clamp(1.1rem, 4vw, 1.5rem); /* Fluid headers */
+}
+
+.welcome-section p,
+.info-card li,
+.next-steps li {
+  color: #666;
+  font-size: clamp(0.9rem, 3vw, 1.1rem); /* Fluid paragraph text */
+  margin: 0;
+}
+
+.info-card ul,
+.next-steps ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+.info-card li,
+.next-steps li {
+  margin-bottom: 0.5rem;
+}
+.welcome-section strong {
+  color: #ff6b35;
+  text-transform: capitalize;
+}

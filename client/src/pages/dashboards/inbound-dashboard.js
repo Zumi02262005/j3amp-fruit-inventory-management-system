@@ -1,0 +1,143 @@
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { inventoryAPI } from "../../services/api";
+import "./inbound-dashboard.css";
+import notification_bell from "../../assets/icons/notification_bell.svg";
+import profile_icon from "../../assets/icons/profile_icon.svg";
+import generate_report_icon from "../../assets/icons/generate_report_icon.svg";
+import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
+import backup_data_icon from "../../assets/icons/backup_icon.svg";
+import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
+
+const InboundDashboard = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [totalStock, setTotalStock] = useState(null);
+  const [totalCategories, setTotalCategories] = useState(null);
+  const [expiringCount, setExpiringCount] = useState(null);
+
+  useEffect(() => {
+    const fetchTotalStock = async () => {
+      try {
+        const response = await inventoryAPI.getInventoryTotal();
+        setTotalStock(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch total stock:", err);
+        setTotalStock("N/A");
+      }
+    };
+    fetchTotalStock();
+
+    const fetchCategories = async () => {
+      try {
+        const response = await inventoryAPI.getInventoryCategories();
+        setTotalCategories(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+        setTotalCategories("N/A");
+      }
+    };
+    fetchCategories();
+
+    const fetchExpiringBatches = async () => {
+      try {
+        const response = await inventoryAPI.getExpiringBatches();
+        setExpiringCount(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch expiring batches:", err);
+        setExpiringCount("N/A");
+      }
+    };
+    fetchExpiringBatches();
+  }, []);
+
+  const handleViewInventory = () => {
+    navigate("/inventory-home");
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  return (
+    <div className="dashboard-container page-with-navbar">
+      <div className="dashboard-header">
+        <p className="dashboard-overview-label">Overview</p>
+        <button className="notification-button">
+          <img
+            src={notification_bell}
+            alt="Notifications"
+            className="notification-icon"
+          />
+        </button>
+        <button className="profile-button">
+          <img src={profile_icon} alt="Profile" className="profile-icon" />
+        </button>
+      </div>
+
+      <div className="dashboard-content">
+        <div className="stock-overview">
+          <div className="total-stock-section">
+            <p className="total-stock">Total Stock</p>
+            <p className="total-stock-amount">
+              {totalStock !== null ? `${totalStock} kg` : "Loading..."}
+            </p>
+          </div>
+          <div className="stock-subsection">
+            <div className="categories-section">
+              <p className="categories">Categories: </p>
+              <p className="categories-count">
+                {totalCategories !== null ? totalCategories : "..."}
+              </p>
+            </div>
+            <div className="expiring-section">
+              <p className="expiring">Expiring: </p>
+              <p className="expiring-count">
+                {expiringCount !== null ? expiringCount : "..."}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div id="admin-quick-actions">
+          <button id="generate-report-card">
+            <img
+              src={generate_report_icon}
+              alt="Generate Report"
+              className="action-icon"
+            />
+            <p id="generate-report-text">Generate report</p>
+          </button>
+          <button id="manage-users-card">
+            <img
+              src={manage_users_icon}
+              alt="Manage Users"
+              className="action-icon"
+            />
+            <p id="manage-users-text">Manage users</p>
+          </button>
+          <button id="backup-data-card">
+            <img
+              src={backup_data_icon}
+              alt="Backup Data"
+              className="action-icon"
+            />
+            <p id="backup-data-text">Backup data</p>
+          </button>
+          <button id="view-inventory-card" onClick={handleViewInventory}>
+            <img
+              src={view_inventory_icon}
+              alt="View Inventory"
+              className="action-icon"
+            />
+            <p id="view-inventory-text">View inventory</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default InboundDashboard;
