@@ -88,3 +88,64 @@
 .form-input-group input:not(:placeholder-shown)::placeholder {
   opacity: 0;
 }
+
+/* SKU Dropdown */
+.sku-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.sku-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+/* Color coding for dropdown options */
+option.sku-low-stock {
+  background-color: #fff8e1;
+  color: #e65100;
+  font-weight: 600;
+}
+
+option.sku-expiring {
+  background-color: #fce4ec;
+  color: #c62828;
+  font-weight: 600;
+}
+
+option.sku-critical {
+  background-color: #f3e5f5;
+  color: #6a1b9a;
+  font-weight: 700;
+}
+
+/* Legend below the dropdown */
+.sku-legend {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.legend-low-stock {
+  color: #e65100;
+}
+
+.legend-expiring {
+  color: #c62828;
+}
+
+.legend-critical {
+  color: #6a1b9a;
+}

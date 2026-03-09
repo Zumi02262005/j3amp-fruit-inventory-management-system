@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { inventoryAPI } from "../../services/api";
+import React, { useState, useEffect} from "react";
+import { inventoryAPI, transactionAPI } from "../../services/api";
 import "./receive-stock.css";
 
 const ReceiveStock = () => {
@@ -10,7 +10,39 @@ const ReceiveStock = () => {
     supplier_name: "",
   });
 
+  const [skuList, setSkuList] = useState([]);
+  const [skuLoading, setSkuLoading] = useState(true);
   const [status, setStatus] = useState({ type: "", msg: "" });
+
+  // Load SKU dropdown on mount
+  useEffect(() => {
+    const fetchSkus = async () => {
+      try {
+        const response = await inventoryAPI.getSkuDropdown();
+        setSkuList(response.data.data);
+      } catch (err) {
+        console.error("Failed to load SKU list:", err);
+      } finally {
+        setSkuLoading(false);
+      }
+    };
+    fetchSkus();
+  }, []);
+
+  const getSkuOptionClass = (item) => {
+  if (item.is_low_stock && item.is_expiring_soon) return "sku-critical";
+  if (item.is_expiring_soon) return "sku-expiring";
+  if (item.is_low_stock) return "sku-low-stock";
+  return "";
+};
+
+const getSkuLabel = (item) => {
+  const warnings = [];
+  if (item.is_low_stock) warnings.push("Low Stock");
+  if (item.is_expiring_soon) warnings.push("Expiring Soon");
+  const suffix = warnings.length > 0 ? ` — ⚠ ${warnings.join(", ")}` : "";
+  return `${item.sku} — ${item.product_name}${suffix}`;
+};
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,7 +53,7 @@ const ReceiveStock = () => {
     setStatus({ type: "loading", msg: "Updating inventory..." });
 
     try {
-      const response = await inventoryAPI.receiveStock(formData);
+      const response = await transactionAPI.receiveStock(formData);
 
       if (response.data.success) {
         setStatus({
@@ -57,14 +89,36 @@ const ReceiveStock = () => {
 
           <div className="form-input-group">
             <label>SKU</label>
-            <input
-              type="text"
-              name="sku"
-              placeholder="e.g. 55379"
-              value={formData.sku}
-              onChange={handleChange}
-              required
-            />
+            {skuLoading ? (
+              <select disabled>
+                <option>Loading SKUs...</option>
+              </select>
+            ) : (
+              <select
+                name="sku"
+                value={formData.sku}
+                onChange={handleChange}
+                required
+                className="sku-select"
+              >
+                <option value="">Select a SKU</option>
+                {skuList.map((item) => (
+                  <option
+                    key={item.sku}
+                    value={item.sku}
+                    className={getSkuOptionClass(item)}
+                  >
+                    {getSkuLabel(item)}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="sku-legend">
+              <span className="legend-item legend-low-stock">● Low Stock</span>
+              <span className="legend-item legend-expiring">● Expiring Soon</span>
+              <span className="legend-item legend-critical">● Both</span>
+            </div>
           </div>
 
           <div className="form-input-group">

@@ -10,6 +10,8 @@ const authRoutes = require("./routes/authRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const logRoutes = require("./routes/logRoutes");
+const userRoutes = require("./routes/userRoutes");
+const alertRoutes = require("./routes/alertRoutes");
 
 // Create Express app
 const app = express();
@@ -51,6 +53,8 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/transactions", transactionRoutes);
 // Use logs routes
 app.use("/api/logs", logRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/alerts", alertRoutes);
 
 // 404 handler
 app.use((req, res) => {

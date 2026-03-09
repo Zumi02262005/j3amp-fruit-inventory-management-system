@@ -194,6 +194,81 @@ const getBatches = async (req, res) => {
   }
 };
 
+// ---- SKU Dropdown (for dispatch and receive forms) ----
+// Returns all active SKUs with stock status and expiry status for color coding
+const getSkuDropdown = async (req, res) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT
+        i.sku,
+        i.product_name,
+        i.category,
+        i.reorder_point,
+        COALESCE(SUM(b.remaining_quantity), 0) AS total_stock,
+        MIN(b.expiration_date) AS nearest_expiry,
+        DATEDIFF(MIN(b.expiration_date), CURDATE()) AS days_until_expiry,
+        -- low_stock flag: true if total stock is at or below reorder point
+        CASE 
+          WHEN COALESCE(SUM(b.remaining_quantity), 0) <= i.reorder_point THEN 1
+          ELSE 0
+        END AS is_low_stock,
+        -- expiring_soon flag: true if nearest batch expires within 7 days
+        CASE
+          WHEN MIN(b.expiration_date) IS NOT NULL 
+            AND DATEDIFF(MIN(b.expiration_date), CURDATE()) <= 7 THEN 1
+          ELSE 0
+        END AS is_expiring_soon
+      FROM inventory i
+      LEFT JOIN batches b ON i.sku = b.sku AND b.status = 'active'
+      WHERE i.status = 'active'
+      GROUP BY i.sku, i.product_name, i.category, i.reorder_point
+      ORDER BY i.product_name ASC`
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("SKU dropdown error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ---- SKU Dropdown for Dispatch only ----
+// Same as above but only includes SKUs that actually have stock available
+const getSkuDropdownDispatch = async (req, res) => {
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT
+        i.sku,
+        i.product_name,
+        i.category,
+        i.reorder_point,
+        COALESCE(SUM(b.remaining_quantity), 0) AS total_stock,
+        MIN(b.expiration_date) AS nearest_expiry,
+        DATEDIFF(MIN(b.expiration_date), CURDATE()) AS days_until_expiry,
+        CASE 
+          WHEN COALESCE(SUM(b.remaining_quantity), 0) <= i.reorder_point THEN 1
+          ELSE 0
+        END AS is_low_stock,
+        CASE
+          WHEN MIN(b.expiration_date) IS NOT NULL 
+            AND DATEDIFF(MIN(b.expiration_date), CURDATE()) <= 7 THEN 1
+          ELSE 0
+        END AS is_expiring_soon
+      FROM inventory i
+      INNER JOIN batches b ON i.sku = b.sku AND b.status = 'active'
+      WHERE i.status = 'active'
+      GROUP BY i.sku, i.product_name, i.category, i.reorder_point
+      HAVING total_stock > 0
+      ORDER BY i.product_name ASC`
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("SKU dropdown dispatch error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   viewInventory,
   getInventoryTotal,
@@ -202,4 +277,6 @@ module.exports = {
   getLowStockItems,
   getExpiringItems,
   getBatches,
+  getSkuDropdown,
+  getSkuDropdownDispatch,
 };

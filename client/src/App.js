@@ -6,12 +6,14 @@ import NavigationBar from "./components/NavigationBar";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/dashboards/admin-dashboard";
 import InboundDashboard from "./pages/dashboards/inbound-dashboard";
+import OutboundDashboard from "./pages/dashboards/outbound-dashboard";
 import InventoryHome from "./pages/inventory/inventory-home";
 import InventoryItem from "./pages/inventory/inventory-item";
 import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
+import Profile from "./pages/profile/Profile";
+import Users from "./pages/users/Users";
 import "./App.css";
-import OutboundDashboard from "./pages/dashboards/outbound-dashboard";
 
 function App() {
   return (
@@ -35,7 +37,6 @@ function App() {
           <Route
             path="/inbound-dashboard"
             element={
-              // Added 'admin' so they don't get kicked out if they visit this
               <ProtectedRoute allowedRoles={["inbound"]}>
                 <InboundDashboard />
               </ProtectedRoute>
@@ -51,7 +52,6 @@ function App() {
             }
           />
 
-          {/* 2. Added the missing Inventory Route */}
           <Route
             path="/inventory-home"
             element={
@@ -79,15 +79,35 @@ function App() {
             }
           />
 
-          <Route 
-            path="/inventory/:sku" 
+          <Route
+            path="/inventory/:sku"
             element={<InventoryItem />}
+          />
+
+          {/* Profile - all roles */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Users - admin only */}
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Users />
+              </ProtectedRoute>
+            }
           />
 
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* 404 Route - This was catching /inventory-home before! */}
+          {/* 404 Route */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
+import NotificationPanel from "../../components/NotificationPanel";
 import "./inbound-dashboard.css";
-import notification_bell from "../../assets/icons/notification_bell.svg";
 import profile_icon from "../../assets/icons/profile_icon.svg";
 import generate_report_icon from "../../assets/icons/generate_report_icon.svg";
 import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
@@ -52,27 +52,15 @@ const InboundDashboard = () => {
     fetchExpiringBatches();
   }, []);
 
-  const handleViewInventory = () => {
-    navigate("/inventory-home");
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const handleViewInventory = () => navigate("/inventory-home");
+  const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
     <div className="dashboard-container page-with-navbar">
       <div className="dashboard-header">
         <p className="dashboard-overview-label">Overview</p>
-        <button className="notification-button">
-          <img
-            src={notification_bell}
-            alt="Notifications"
-            className="notification-icon"
-          />
-        </button>
-        <button className="profile-button">
+        <NotificationPanel />
+        <button className="profile-button" onClick={() => navigate("/profile")}>
           <img src={profile_icon} alt="Profile" className="profile-icon" />
         </button>
       </div>
@@ -103,35 +91,19 @@ const InboundDashboard = () => {
 
         <div id="admin-quick-actions">
           <button id="generate-report-card">
-            <img
-              src={generate_report_icon}
-              alt="Generate Report"
-              className="action-icon"
-            />
+            <img src={generate_report_icon} alt="Generate Report" className="action-icon" />
             <p id="generate-report-text">Generate report</p>
           </button>
           <button id="manage-users-card">
-            <img
-              src={manage_users_icon}
-              alt="Manage Users"
-              className="action-icon"
-            />
+            <img src={manage_users_icon} alt="Manage Users" className="action-icon" />
             <p id="manage-users-text">Manage users</p>
           </button>
           <button id="backup-data-card">
-            <img
-              src={backup_data_icon}
-              alt="Backup Data"
-              className="action-icon"
-            />
+            <img src={backup_data_icon} alt="Backup Data" className="action-icon" />
             <p id="backup-data-text">Backup data</p>
           </button>
           <button id="view-inventory-card" onClick={handleViewInventory}>
-            <img
-              src={view_inventory_icon}
-              alt="View Inventory"
-              className="action-icon"
-            />
+            <img src={view_inventory_icon} alt="View Inventory" className="action-icon" />
             <p id="view-inventory-text">View inventory</p>
           </button>
         </div>

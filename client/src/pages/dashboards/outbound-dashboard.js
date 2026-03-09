@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
+import NotificationPanel from "../../components/NotificationPanel";
 import "./outbound-dashboard.css";
-import notification_bell from "../../assets/icons/notification_bell.svg";
 import profile_icon from "../../assets/icons/profile_icon.svg";
 
 const OutboundDashboard = () => {
@@ -48,27 +48,15 @@ const OutboundDashboard = () => {
     fetchExpiringBatches();
   }, []);
 
-  const handleViewInventory = () => {
-    navigate("/inventory-home");
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
+  const handleViewInventory = () => navigate("/inventory-home");
+  const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
     <div className="dashboard-container page-with-navbar">
       <div className="dashboard-header">
         <p className="dashboard-overview-label">Overview</p>
-        <button className="notification-button">
-          <img
-            src={notification_bell}
-            alt="Notifications"
-            className="notification-icon"
-          />
-        </button>
-        <button className="profile-button">
+        <NotificationPanel />
+        <button className="profile-button" onClick={() => navigate("/profile")}>
           <img src={profile_icon} alt="Profile" className="profile-icon" />
         </button>
       </div>
