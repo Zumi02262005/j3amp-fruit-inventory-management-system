@@ -5,11 +5,13 @@ require("dotenv").config();
 
 // Import database configuration
 const { testConnection } = require("./config/database");
+
 // Import routes
 const authRoutes = require("./routes/authRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const logRoutes = require("./routes/logRoutes");
+const userRoutes = require("./routes/userRoutes"); // Added User Routes
 
 // Create Express app
 const app = express();
@@ -30,7 +32,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes
+// Base Routes
 app.get("/", (req, res) => {
   res.json({
     message: "J3AMP Inventory Management System API",
@@ -43,14 +45,12 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "Backend is working!" });
 });
 
-// Use auth routes
+// API Route Registration
 app.use("/api/auth", authRoutes);
-// Use inventory routes
 app.use("/api/inventory", inventoryRoutes);
-// Use transaction routes
 app.use("/api/transactions", transactionRoutes);
-// Use logs routes
 app.use("/api/logs", logRoutes);
+app.use("/api/users", userRoutes); // Registered User Routes
 
 // 404 handler
 app.use((req, res) => {
@@ -70,7 +70,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
+// Start server configuration
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -79,11 +79,12 @@ const startServer = async () => {
     await testConnection();
 
     // Start server AFTER database connects
-    // ✅ dynamic — works everywhere
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    app.listen(PORT, () => {
+      console.log(`Database connection successful!`);
+      console.log(`Server running on port ${PORT}`);
+    });
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 };

@@ -21,23 +21,28 @@ CREATE TABLE IF NOT EXISTS batches (
 -- 3. Create the Activity Logs Table 
 CREATE TABLE IF NOT EXISTS activity_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id VARCHAR(100),
-    action_type VARCHAR(100), -- e.g., 'STOCK_IN', 'STOCK_OUT', 'LOGIN'
+    user_id INT,
+    action_type VARCHAR(100), 
     description TEXT,
+    ip_address VARCHAR(45),
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Create the Users Table 
+-- 4. Create the Users Table (Renamed 'id' to 'user_id' for code compatibility)
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100), 
     password VARCHAR(255) NOT NULL, 
-    role ENUM('admin', 'inbound', 'outbound') NOT NULL
+    role ENUM('admin', 'inbound', 'outbound') NOT NULL, 
+    status ENUM('Active', 'Inactive') DEFAULT 'Active', 
+    last_login TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 5. Seed Initial Data
 INSERT INTO inventory (product_code, name, category, status) 
 VALUES 
 ('APP-01', 'Red Apples', 'Pome', 'Active'),
 ('MNG-01', 'Carabao Mango', 'Tropical', 'Active');
 
-ALTER TABLE activity_logs ADD COLUMN ip_address VARCHAR(45) AFTER description;

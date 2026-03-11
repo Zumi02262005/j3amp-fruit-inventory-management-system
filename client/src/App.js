@@ -6,12 +6,13 @@ import NavigationBar from "./components/NavigationBar";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/dashboards/admin-dashboard";
 import InboundDashboard from "./pages/dashboards/inbound-dashboard";
+import OutboundDashboard from "./pages/dashboards/outbound-dashboard";
 import InventoryHome from "./pages/inventory/inventory-home";
 import InventoryItem from "./pages/inventory/inventory-item";
 import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
+import Users from "./pages/Users";
 import "./App.css";
-import OutboundDashboard from "./pages/dashboards/outbound-dashboard";
 
 function App() {
   return (
@@ -32,11 +33,20 @@ function App() {
             }
           />
 
+          {/* NEW: User Management Route */}
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Users />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="/inbound-dashboard"
             element={
-              // Added 'admin' so they don't get kicked out if they visit this
-              <ProtectedRoute allowedRoles={["inbound"]}>
+              <ProtectedRoute allowedRoles={["inbound", "admin"]}>
                 <InboundDashboard />
               </ProtectedRoute>
             }
@@ -45,13 +55,12 @@ function App() {
           <Route
             path="/outbound-dashboard"
             element={
-              <ProtectedRoute allowedRoles={["outbound"]}>
+              <ProtectedRoute allowedRoles={["outbound", "admin"]}>
                 <OutboundDashboard />
               </ProtectedRoute>
             }
           />
 
-          {/* 2. Added the missing Inventory Route */}
           <Route
             path="/inventory-home"
             element={
@@ -64,7 +73,7 @@ function App() {
           <Route
             path="/receive-stock"
             element={
-              <ProtectedRoute allowedRoles={["inbound"]}>
+              <ProtectedRoute allowedRoles={["inbound", "admin"]}>
                 <ReceiveStock />
               </ProtectedRoute>
             }
@@ -73,7 +82,7 @@ function App() {
           <Route
             path="/dispatch-stock"
             element={
-              <ProtectedRoute allowedRoles={["outbound"]}>
+              <ProtectedRoute allowedRoles={["outbound", "admin"]}>
                 <DispatchStock />
               </ProtectedRoute>
             }
@@ -81,13 +90,17 @@ function App() {
 
           <Route 
             path="/inventory/:sku" 
-            element={<InventoryItem />}
+            element={
+                <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
+                    <InventoryItem />
+                </ProtectedRoute>
+            }
           />
 
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* 404 Route - This was catching /inventory-home before! */}
+          {/* 404 Route */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>
