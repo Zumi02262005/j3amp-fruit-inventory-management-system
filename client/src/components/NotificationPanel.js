@@ -74,13 +74,8 @@ const NotificationPanel = () => {
   };
 
   const getAlertIcon = (type) => {
-    switch (type) {
-      case "low_stock": return "📦";
-      case "expiring": return "⏰";
-      case "critical": return "🚨";
-      default: return "⚠️";
-    }
-  };
+    return "!"
+    };
 
   return (
     <div className="notification-wrapper" ref={panelRef}>

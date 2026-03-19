@@ -261,3 +261,133 @@ body {
 .view-details-link:hover {
   opacity: 0.7;
 }
+
+.expired-items {
+  background: linear-gradient(77deg, #b71c1c 20.19%, #e53935 80.26%);
+  border-radius: 30px;
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+  margin-bottom: 3rem;
+}
+
+.expired-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.expired-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.expired-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #b71c1c;
+}
+
+.expired-sku {
+  color: #b71c1c;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.expired-details {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.expired-details li {
+  margin-bottom: 0.25rem;
+}
+
+.expired-items {
+  background: linear-gradient(77deg, #b71c1c 20.19%, #e53935 80.26%);
+  border-radius: 30px;
+  width: 97%;
+  padding: 1.5rem;
+  height: auto;
+  flex-grow: 1;
+  padding-bottom: 50px;
+  box-sizing: border-box;
+  margin-bottom: 3rem;
+}
+
+.expired-label {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.expired-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.expired-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.expired-sku {
+  color: #b71c1c;
+  margin: 0 0 0.5rem 0;
+  font-family: Inter;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.expired-details {
+  font-family: Inter;
+  margin: 0;
+  padding-left: 1.5rem;
+  color: #1a1a1a;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.expired-details li {
+  margin-bottom: 0.25rem;
+}
+
+.expired-view-link {
+  color: #b71c1c !important;
+}
+
+.expired-toggle-link {
+  color: #b71c1c;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.expired-toggle-link:hover {
+  opacity: 0.7;
+}
+
+.view-details-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
