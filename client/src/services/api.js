@@ -60,7 +60,9 @@ export const inventoryAPI = {
   getLowStockItems: () => api.get("/inventory/low-stock-items"),
   getExpiringItems: () => api.get("/inventory/expiring-items"),
   receiveStock: (data) => api.post("/transactions/receive", data),
-  dispatchStock: (data) => api.post("/transactions/dispatch", data)
+  dispatchStock: (data) => api.post("/transactions/dispatch", data),
+  getSkuDropdown: () => api.get("/inventory/sku-dropdown"),
+  getSkuDropdownDispatch: () => api.get("/inventory/sku-dropdown/dispatch"),
 };
 
 // Logs API calls

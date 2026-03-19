@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { inventoryAPI, transactionAPI } from "../../services/api";
 import "./receive-stock.css";
 
@@ -13,6 +13,7 @@ const ReceiveStock = () => {
   const [skuList, setSkuList] = useState([]);
   const [skuLoading, setSkuLoading] = useState(true);
   const [status, setStatus] = useState({ type: "", msg: "" });
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   // Load SKU dropdown on mount
   useEffect(() => {
@@ -22,6 +23,7 @@ const ReceiveStock = () => {
         setSkuList(response.data.data);
       } catch (err) {
         console.error("Failed to load SKU list:", err);
+        setStatus({ type: "error", msg: "Failed to load SKU list." });
       } finally {
         setSkuLoading(false);
       }
@@ -29,20 +31,24 @@ const ReceiveStock = () => {
     fetchSkus();
   }, []);
 
-  const getSkuOptionClass = (item) => {
-  if (item.is_low_stock && item.is_expiring_soon) return "sku-critical";
-  if (item.is_expiring_soon) return "sku-expiring";
-  if (item.is_low_stock) return "sku-low-stock";
-  return "";
-};
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".custom-sku-dropdown")) setDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-const getSkuLabel = (item) => {
-  const warnings = [];
-  if (item.is_low_stock) warnings.push("Low Stock");
-  if (item.is_expiring_soon) warnings.push("Expiring Soon");
-  const suffix = warnings.length > 0 ? ` — ⚠ ${warnings.join(", ")}` : "";
-  return `${item.sku} — ${item.product_name}${suffix}`;
-};
+  const getSkuColor = (item) => {
+    if (item.is_low_stock && item.is_expiring_soon) return "#a855f7";
+    if (item.is_expiring_soon) return "#ef4444";                       
+    if (item.is_low_stock) return "#f97316";                           
+    return "inherit";
+  };
+
+  const getSkuLabel = (item) => {
+    return `${item.sku} — ${item.product_name}`;
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -70,11 +76,12 @@ const getSkuLabel = (item) => {
     } catch (err) {
       setStatus({
         type: "error",
-        msg:
-          err.response?.data?.message || "Failed to receive stock. Check SKU.",
+        msg: err.response?.data?.message || "Failed to receive stock. Check SKU.",
       });
     }
   };
+
+  const selectedItem = skuList.find((i) => i.sku === formData.sku);
 
   return (
     <div className="receive-stock-container page-with-navbar">
@@ -90,28 +97,48 @@ const getSkuLabel = (item) => {
           <div className="form-input-group">
             <label>SKU</label>
             {skuLoading ? (
-              <select disabled>
-                <option>Loading SKUs...</option>
-              </select>
+              <div className="custom-sku-dropdown">
+                <div className="sku-dropdown-selected disabled">Loading SKUs...</div>
+              </div>
             ) : (
-              <select
-                name="sku"
-                value={formData.sku}
-                onChange={handleChange}
-                required
-                className="sku-select"
-              >
-                <option value="">Select a SKU</option>
-                {skuList.map((item) => (
-                  <option
-                    key={item.sku}
-                    value={item.sku}
-                    className={getSkuOptionClass(item)}
-                  >
-                    {getSkuLabel(item)}
-                  </option>
-                ))}
-              </select>
+              <div className="custom-sku-dropdown">
+                {/* Hidden native input so form required validation still works */}
+                <input
+                  type="text"
+                  name="sku"
+                  value={formData.sku}
+                  required
+                  readOnly
+                  style={{ display: "none" }}
+                />
+
+                <div
+                  className={`sku-dropdown-selected ${dropdownOpen ? "open" : ""}`}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  style={{ color: selectedItem ? getSkuColor(selectedItem) : "#999" }}
+                >
+                  {selectedItem ? getSkuLabel(selectedItem) : "Select a SKU"}
+                  <span className="sku-dropdown-arrow">▾</span>
+                </div>
+
+                {dropdownOpen && (
+                  <div className="sku-dropdown-list">
+                    {skuList.map((item) => (
+                      <div
+                        key={item.sku}
+                        className="sku-dropdown-item"
+                        style={{ color: getSkuColor(item) }}
+                        onClick={() => {
+                          setFormData({ ...formData, sku: item.sku });
+                          setDropdownOpen(false);
+                        }}
+                      >
+                        {getSkuLabel(item)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
 
             <div className="sku-legend">

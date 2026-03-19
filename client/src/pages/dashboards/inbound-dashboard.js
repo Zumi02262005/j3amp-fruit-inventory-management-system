@@ -9,6 +9,7 @@ import generate_report_icon from "../../assets/icons/generate_report_icon.svg";
 import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
 import backup_data_icon from "../../assets/icons/backup_icon.svg";
 import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
+import receive_icon from "../../assets/icons/receive_icon.svg";
 
 const InboundDashboard = () => {
   const { user, logout } = useAuth();
@@ -52,8 +53,8 @@ const InboundDashboard = () => {
     fetchExpiringBatches();
   }, []);
 
+  const handleReceiveStock = () => navigate("/receive-stock");
   const handleViewInventory = () => navigate("/inventory-home");
-  const handleLogout = () => { logout(); navigate("/login"); };
 
   return (
     <div className="dashboard-container page-with-navbar">
@@ -89,22 +90,10 @@ const InboundDashboard = () => {
           </div>
         </div>
 
-        <div id="admin-quick-actions">
-          <button id="generate-report-card">
-            <img src={generate_report_icon} alt="Generate Report" className="action-icon" />
-            <p id="generate-report-text">Generate report</p>
-          </button>
-          <button id="manage-users-card">
-            <img src={manage_users_icon} alt="Manage Users" className="action-icon" />
-            <p id="manage-users-text">Manage users</p>
-          </button>
-          <button id="backup-data-card">
-            <img src={backup_data_icon} alt="Backup Data" className="action-icon" />
-            <p id="backup-data-text">Backup data</p>
-          </button>
-          <button id="view-inventory-card" onClick={handleViewInventory}>
-            <img src={view_inventory_icon} alt="View Inventory" className="action-icon" />
-            <p id="view-inventory-text">View inventory</p>
+        <div id="inbound-quick-actions">
+          <button id="receive-stock-button" onClick={handleReceiveStock}>
+            <img src={receive_icon} alt="Receive Stock" className="receive-icon"/>
+            <p id="receive-icon-text">Receive Stock</p>
           </button>
         </div>
       </div>
