@@ -70,6 +70,7 @@ export const inventoryAPI = {
 export const logsAPI = {
   recentActivity: () => api.get("/logs/recent-activity"),
   recentReceipts: () => api.get("/logs/recent-receipts"),
+  recentDispatches: () => api.get("/logs/recent-dispatches"),
 };
 
 // ---- Transaction API ----
