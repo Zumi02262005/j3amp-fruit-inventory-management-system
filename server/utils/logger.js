@@ -17,7 +17,7 @@ const logActivity = async (userId, action, details) => {
 };
 
 const recentActivity = async (req, res) => {
-  if (req.user.role !== 'admin' || !req.user){
+  if (!req.user || req.user.role !== 'admin'){
     return res.status(403).json({
       success: false,
       message: 'Forbidden'
@@ -46,7 +46,52 @@ const recentActivity = async (req, res) => {
   }
 }
 
+const recentReceipts = async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      message: 'Unauthorized'
+    });
+  }
+
+  const { role, userId } = req.user;
+  const targetUserId = req.params.userId || userId;
+
+  if (role !== 'admin' && parseInt(targetUserId) !== parseInt(userId)) {
+    return res.status(403).json({
+      success: false,
+      message: 'Forbidden'
+    });
+  }
+
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT log_id, user_id, action, details, log_date
+       FROM activity_logs
+       WHERE action = 'RECEIVE STOCK'
+       AND user_id = ?
+       ORDER BY log_date DESC
+       LIMIT 10`,
+      [targetUserId]
+    );
+
+    res.json({
+      success: true,
+      data: rows
+    });
+  } catch (error) {
+    console.error("Recent receipts error: ", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+};
+
+
+
 module.exports = { 
   logActivity,
   recentActivity,
+  recentReceipts,
 };

@@ -142,3 +142,27 @@ body {
 #inbound-quick-actions > *:hover{
   background: #f0f0f0;
 }
+
+.recent-receipts {
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  width: 100%;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  font-family: Inter;
+  padding: 1rem 1.5rem;
+}
+
+.recent-receipts p {
+  margin: 0 0 0.5rem 0;
+  color: #ff6200;
+  font-size: clamp(1.4rem, 4vw, 1.5rem);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.recent-receipts-list {
+  padding-left: 1.5rem;
+}

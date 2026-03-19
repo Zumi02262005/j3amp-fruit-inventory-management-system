@@ -57,6 +57,7 @@ export const inventoryAPI = {
   getInventoryTotal: () => api.get("/inventory/total"),
   getInventoryCategories: () => api.get("/inventory/categories"),
   getExpiringBatches: () => api.get("/inventory/expiring"),
+  getLowStockQuantity: () => api.get("/inventory/low-stock"),
   getLowStockItems: () => api.get("/inventory/low-stock-items"),
   getExpiringItems: () => api.get("/inventory/expiring-items"),
   receiveStock: (data) => api.post("/transactions/receive", data),
@@ -67,7 +68,8 @@ export const inventoryAPI = {
 
 // Logs API calls
 export const logsAPI = {
-  recentActivity: () => api.get("/logs/recent-activity")
+  recentActivity: () => api.get("/logs/recent-activity"),
+  recentReceipts: () => api.get("/logs/recent-receipts"),
 };
 
 // ---- Transaction API ----

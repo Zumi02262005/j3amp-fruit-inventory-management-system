@@ -99,6 +99,34 @@ const getExpiringBatches = async (req, res) => {
   }
 };
 
+const getLowStockQuantity = async (req, res) => {
+  try {
+    const [[{ low_stock_count}]] = await promisePool.execute(
+      `SELECT COUNT(*) AS low_stock_count FROM (
+      SELECT 
+      inventory.sku,
+      inventory.reorder_point,
+      COALESCE(SUM(batches.remaining_quantity), 0) AS total_stock 
+      FROM inventory 
+      LEFT JOIN batches ON inventory.sku = batches.sku AND batches.status = 'active' 
+      WHERE inventory.status = 'active' 
+      GROUP BY inventory.sku, inventory.reorder_point 
+      HAVING total_stock <= inventory.reorder_point OR total_stock IS NULL
+      ) AS low_stock_items`
+    );
+    res.json({
+      success: true,
+      data: low_stock_count,
+    });
+  } catch (error) {
+    console.error("Low stock count error: ", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
 const getLowStockItems = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -274,6 +302,7 @@ module.exports = {
   getInventoryTotal,
   getInventoryCategories,
   getExpiringBatches,
+  getLowStockQuantity,
   getLowStockItems,
   getExpiringItems,
   getBatches,

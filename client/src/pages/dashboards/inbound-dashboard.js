@@ -2,21 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
+import { logsAPI } from "../../services/api";
 import NotificationPanel from "../../components/NotificationPanel";
 import "./inbound-dashboard.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
-import generate_report_icon from "../../assets/icons/generate_report_icon.svg";
-import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
-import backup_data_icon from "../../assets/icons/backup_icon.svg";
-import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
 import receive_icon from "../../assets/icons/receive_icon.svg";
 
 const InboundDashboard = () => {
-  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);
-  const [expiringCount, setExpiringCount] = useState(null);
+  const [lowStockCount, setLowStockCount] = useState(null);
+  const [recentReceipts, setRecentReceipts] = useState([]);
 
   useEffect(() => {
     const fetchTotalStock = async () => {
@@ -28,7 +25,6 @@ const InboundDashboard = () => {
         setTotalStock("N/A");
       }
     };
-    fetchTotalStock();
 
     const fetchCategories = async () => {
       try {
@@ -39,22 +35,34 @@ const InboundDashboard = () => {
         setTotalCategories("N/A");
       }
     };
-    fetchCategories();
 
-    const fetchExpiringBatches = async () => {
+    const fetchLowStock = async () => {
       try {
-        const response = await inventoryAPI.getExpiringBatches();
-        setExpiringCount(response.data.data);
+        const response = await inventoryAPI.getLowStockQuantity();
+        setLowStockCount(response.data.data);
       } catch (err) {
-        console.error("Failed to fetch expiring batches:", err);
-        setExpiringCount("N/A");
+        console.error("Failed to fetch low stock items:", err);
+        setLowStockCount("N/A");
       }
     };
-    fetchExpiringBatches();
+
+    const fetchRecentReceipts = async () => {
+      try {
+        const response = await logsAPI.recentReceipts();
+        setRecentReceipts(response.data.data);
+      } catch (err) {
+        console.error("Failed to fetch recent receipts: ", err);
+        setRecentReceipts([]);
+      }
+    };
+
+    fetchTotalStock();
+    fetchCategories();
+    fetchLowStock();
+    fetchRecentReceipts();
   }, []);
 
   const handleReceiveStock = () => navigate("/receive-stock");
-  const handleViewInventory = () => navigate("/inventory-home");
 
   return (
     <div className="dashboard-container page-with-navbar">
@@ -82,9 +90,9 @@ const InboundDashboard = () => {
               </p>
             </div>
             <div className="expiring-section">
-              <p className="expiring">Expiring: </p>
+              <p className="expiring">Low Stock: </p>
               <p className="expiring-count">
-                {expiringCount !== null ? expiringCount : "..."}
+                {lowStockCount !== null ? lowStockCount : "..."}
               </p>
             </div>
           </div>
@@ -92,9 +100,39 @@ const InboundDashboard = () => {
 
         <div id="inbound-quick-actions">
           <button id="receive-stock-button" onClick={handleReceiveStock}>
-            <img src={receive_icon} alt="Receive Stock" className="receive-icon"/>
+            <img src={receive_icon} alt="Receive Stock" className="receive-icon" />
             <p id="receive-icon-text">Receive Stock</p>
           </button>
+        </div>
+
+        <div className="recent-receipts">
+          <p>Recent Receipts</p>
+          <ul className="recent-receipts-list">
+            {recentReceipts.length === 0 ? (
+              <p><strong>No recent receipts</strong></p>
+            ) : (
+              recentReceipts.map((receipt) => (
+                <li key={receipt.log_id} className="recent-receipts-content">
+                  <span className="receipt-action"><strong>{receipt.action}</strong> - </span>
+                  <span className="receipt-details"><strong>{receipt.details}</strong> - </span>
+                  <span className="receipt-date">
+                    {new Date(receipt.log_date).toLocaleDateString("en-PH", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </span>
+                  {" "}
+                  <span className="receipt-time">
+                    {new Date(receipt.log_date).toLocaleTimeString("en-PH", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </li>
+              ))
+            )}
+          </ul>
         </div>
       </div>
     </div>
