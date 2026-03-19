@@ -11,7 +11,8 @@ import InventoryHome from "./pages/inventory/inventory-home";
 import InventoryItem from "./pages/inventory/inventory-item";
 import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
-import Users from "./pages/Users";
+import Profile from "./pages/profile/Profile";
+import Users from "./pages/users/Users";
 import "./App.css";
 
 function App() {
@@ -46,7 +47,7 @@ function App() {
           <Route
             path="/inbound-dashboard"
             element={
-              <ProtectedRoute allowedRoles={["inbound", "admin"]}>
+              <ProtectedRoute allowedRoles={["inbound"]}>
                 <InboundDashboard />
               </ProtectedRoute>
             }
@@ -88,12 +89,28 @@ function App() {
             }
           />
 
-          <Route 
-            path="/inventory/:sku" 
+          <Route
+            path="/inventory/:sku"
+            element={<InventoryItem />}
+          />
+
+          {/* Profile - all roles */}
+          <Route
+            path="/profile"
             element={
-                <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
-                    <InventoryItem />
-                </ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Users - admin only */}
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Users />
+              </ProtectedRoute>
             }
           />
 

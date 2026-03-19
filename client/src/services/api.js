@@ -57,15 +57,55 @@ export const inventoryAPI = {
   getInventoryTotal: () => api.get("/inventory/total"),
   getInventoryCategories: () => api.get("/inventory/categories"),
   getExpiringBatches: () => api.get("/inventory/expiring"),
+  getLowStockQuantity: () => api.get("/inventory/low-stock"),
   getLowStockItems: () => api.get("/inventory/low-stock-items"),
   getExpiringItems: () => api.get("/inventory/expiring-items"),
   receiveStock: (data) => api.post("/transactions/receive", data),
-  dispatchStock: (data) => api.post("/transactions/dispatch", data)
+  dispatchStock: (data) => api.post("/transactions/dispatch", data),
+  getSkuDropdown: () => api.get("/inventory/sku-dropdown"),
+  getSkuDropdownDispatch: () => api.get("/inventory/sku-dropdown/dispatch"),
 };
 
 // Logs API calls
 export const logsAPI = {
-  recentActivity: () => api.get("/logs/recent-activity")
+  recentActivity: () => api.get("/logs/recent-activity"),
+  recentReceipts: () => api.get("/logs/recent-receipts"),
+  recentDispatches: () => api.get("/logs/recent-dispatches"),
+};
+
+// ---- Transaction API ----
+export const transactionAPI = {
+  receiveStock: (data) => api.post("/transactions/receive", data),
+  dispatchStock: (data) => api.post("/transactions/dispatch", data),
+};
+
+// ---- User API ----
+export const userAPI = {
+  // Admin only
+  getAllUsers: () => api.get("/users"),
+  getUserById: (id) => api.get(`/users/${id}`),
+  createUser: (data) => api.post("/users", data),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
+  deactivateUser: (id) => api.patch(`/users/${id}/deactivate`),
+  reactivateUser: (id) => api.patch(`/users/${id}/reactivate`),
+  resetUserPassword: (id, data) => api.patch(`/users/${id}/reset-password`, data),
+  getUserActivityLogs: (id) => api.get(`/users/${id}/logs`),
+  getAllActivityLogs: () => api.get("/users/logs"),
+  // Any logged in user
+  getOwnProfile: () => api.get("/users/profile/me"),
+  updateOwnProfile: (data) => api.put("/users/profile/me", data),
+  changeOwnPassword: (data) => api.patch("/users/profile/change-password", data),
+  getOwnActivityLogs: () => api.get("/users/profile/my-logs"),
+};
+
+// ---- Alerts API ----
+export const alertAPI = {
+  getActiveAlerts: () => api.get("/alerts/active"),
+  getAlertCount: () => api.get("/alerts/count"),
+  getAllAlerts: () => api.get("/alerts"),
+  generateAlerts: () => api.post("/alerts/generate"),
+  clearAlert: (id) => api.patch(`/alerts/${id}/clear`),
+  clearAllAlerts: () => api.patch("/alerts/clear-all"),
 };
 
 // Export the api instance for custom calls

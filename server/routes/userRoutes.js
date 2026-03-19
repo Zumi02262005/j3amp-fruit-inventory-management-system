@@ -1,17 +1,38 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getAllUsers, createUser, updateUser } = require('../controllers/userController');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  deactivateUser,
+  reactivateUser,
+  resetUserPassword,
+  getUserActivityLogs,
+  getOwnProfile,
+  updateOwnProfile,
+  changeOwnPassword,
+  getOwnActivityLogs,
+} = require("../controllers/userController");
+const { authenticateToken, authorizeRole } = require("../middleware/authMiddleware");
 
-// Debugging logs to verify imports
-console.log("DEBUG: Checking imports for userRoutes.js");
-console.log("authenticateToken is:", typeof authenticateToken);
-console.log("getAllUsers is:", typeof getAllUsers);
-console.log("createUser is:", typeof createUser);
-console.log("updateUser is:", typeof updateUser);
+// All routes require login
+router.use(authenticateToken);
 
-router.get('/', authenticateToken, getAllUsers);
-router.post('/add', authenticateToken, createUser);
-router.put('/:id', authenticateToken, updateUser);
+// ---- Any logged in user ----
+router.get("/profile/me", getOwnProfile);
+router.put("/profile/me", updateOwnProfile);
+router.patch("/profile/change-password", changeOwnPassword);
+router.get("/profile/my-logs", getOwnActivityLogs);
+
+// ---- Admin only ----
+router.get("/", authorizeRole("admin"), getAllUsers);
+router.get("/:id", authorizeRole("admin"), getUserById);
+router.post("/", authorizeRole("admin"), createUser);
+router.put("/:id", authorizeRole("admin"), updateUser);
+router.patch("/:id/deactivate", authorizeRole("admin"), deactivateUser);
+router.patch("/:id/reactivate", authorizeRole("admin"), reactivateUser);
+router.patch("/:id/reset-password", authorizeRole("admin"), resetUserPassword);
+router.get("/:id/logs", authorizeRole("admin"), getUserActivityLogs);
 
 module.exports = router;

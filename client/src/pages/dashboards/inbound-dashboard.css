@@ -120,20 +120,28 @@ body {
     sans-serif;
 }
 
-/* ── Quick Actions ── */
-#admin-quick-actions {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(0.75rem, 3vw, 1.5rem);
+#inbound-quick-actions {
+  display: flex;
+  flex-direction: column;
+
   width: 100%;
-  max-width: 360px;
   margin-bottom: 1.5rem;
 }
 
-/* Targets all 4 cards dynamically */
-#admin-quick-actions > * {
+#inbound-quick-actions p{
+  color: #3D3D3D;
+  text-align: center;
+  font-family: Inter;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+#inbound-quick-actions > * {
+  font-family: Inter;
   width: 100%;
-  aspect-ratio: 1 / 0.9; /* Automatically maintains proportion without hardcoding height! */
+  height: 7rem;
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
@@ -142,49 +150,31 @@ body {
   transition: background 0.2s;
 }
 
-#admin-quick-actions > *:hover {
+#inbound-quick-actions > *:hover{
   background: #f0f0f0;
 }
 
-/* ── Info Cards ── */
-.welcome-section,
-.info-card,
-.next-steps {
+.recent-receipts {
+  border-radius: 20px;
   background: #fff;
-  padding: clamp(1.25rem, 4vw, 2rem);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
   width: 100%;
+  margin-bottom: 1.5rem;
   box-sizing: border-box;
+  font-family: Inter;
+  padding: 1rem 1.5rem;
 }
 
-.welcome-section h2,
-.info-card h3,
-.next-steps h3 {
-  margin: 0 0 0.75rem;
-  color: #333;
-  font-size: clamp(1.1rem, 4vw, 1.5rem); /* Fluid headers */
+.recent-receipts p {
+  font-family: Inter;
+  margin: 0 0 0.5rem 0;
+  color: #ff6200;
+  font-size: clamp(1.4rem, 4vw, 1.5rem);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
 }
 
-.welcome-section p,
-.info-card li,
-.next-steps li {
-  color: #666;
-  font-size: clamp(0.9rem, 3vw, 1.1rem); /* Fluid paragraph text */
-  margin: 0;
-}
-
-.info-card ul,
-.next-steps ul {
-  margin: 0;
+.recent-receipts-list {
   padding-left: 1.5rem;
-}
-.info-card li,
-.next-steps li {
-  margin-bottom: 0.5rem;
-}
-.welcome-section strong {
-  color: #ff6b35;
-  text-transform: capitalize;
 }

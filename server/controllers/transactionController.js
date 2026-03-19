@@ -1,5 +1,6 @@
 const { promisePool } = require("../config/database");
 const { logActivity } = require("../utils/logger");
+const { runAlertGeneration } = require("./alertController");
 
 // Receive Stock
 const receiveStock = async (req, res) => {
@@ -49,6 +50,9 @@ const receiveStock = async (req, res) => {
     );
 
     await connection.commit();
+    
+    // Auto-generate alerts after stock change
+    await runAlertGeneration();
 
     res.status(201).json({
       success: true,
@@ -145,6 +149,10 @@ const dispatchStock = async (req, res) => {
     );
 
     await connection.commit();
+
+    // Auto-generate alerts after stock change
+    await runAlertGeneration();
+
     res.status(201).json({
       success: true,
       message: "Stock dispatched successfully",

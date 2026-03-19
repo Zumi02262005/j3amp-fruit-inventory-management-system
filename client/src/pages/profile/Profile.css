@@ -1,0 +1,219 @@
+/* ── Layout ── */
+.profile-container {
+  min-height: 100vh;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-loading {
+  text-align: center;
+  margin-top: 3rem;
+  color: #999;
+}
+
+/* ── Header ── */
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
+}
+
+.profile-title {
+  font: 700 clamp(1.2rem, 4vw, 1.5rem) / 1.2 Inter, sans-serif;
+  color: #000;
+  margin: 0;
+}
+
+.profile-back-btn {
+  background: none;
+  border: none;
+  color: #ff6200;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profile-back-btn:hover {
+  text-decoration: underline;
+}
+
+.profile-logout-btn {
+  background: #ff6200;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-logout-btn:hover {
+  background: #e55a00;
+}
+
+/* ── Content ── */
+.profile-content {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Avatar Section ── */
+.profile-avatar-section {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+}
+
+.profile-full-name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.profile-role-badge {
+  background: #ff6200;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 3px 12px;
+  text-transform: capitalize;
+}
+
+.profile-username {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.profile-last-login {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #bbb;
+}
+
+/* ── Tabs ── */
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.profile-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #999;
+  transition: all 0.2s;
+}
+
+.profile-tab.active {
+  background: #ff6200;
+  color: #fff;
+}
+
+/* ── Form ── */
+.profile-form {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.profile-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.profile-input-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.profile-input-group input {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.profile-input-group input:focus {
+  border-color: #ff6200;
+}
+
+.profile-save-btn {
+  background: #ff6200;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.profile-save-btn:hover {
+  background: #e55a00;
+}
+
+/* ── Status messages ── */
+.profile-status {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.profile-status.success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.profile-status.error {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.profile-status.loading {
+  background: #fff8e1;
+  color: #f57f17;
+}
