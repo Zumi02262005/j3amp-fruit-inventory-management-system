@@ -60,6 +60,7 @@ export const inventoryAPI = {
 export const transactionAPI = {
   receiveStock: (data) => api.post("/transactions/receive", data),
   dispatchStock: (data) => api.post("/transactions/dispatch", data),
+  getAllTransactions: () => api.get("/transactions/get-all-transactions"),
 };
 
 // ---- Logs API ----

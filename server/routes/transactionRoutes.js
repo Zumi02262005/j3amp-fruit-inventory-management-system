@@ -4,6 +4,7 @@ const { authenticateToken } = require("../middleware/authMiddleware");
 const { authorizeRole } = require("../middleware/authMiddleware");
 const { receiveStock } = require("../controllers/transactionController");
 const { dispatchStock } = require("../controllers/transactionController");
+const { getAllTransactions } = require("../controllers/transactionController");
 
 // Retrieve Transactions
 router.get("/", authenticateToken);
@@ -23,5 +24,7 @@ router.post(
   authorizeRole("outbound"),
   dispatchStock
 );
+
+router.get("/get-all-transactions", authenticateToken, getAllTransactions);
 
 module.exports = router;

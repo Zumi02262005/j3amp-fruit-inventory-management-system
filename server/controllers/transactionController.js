@@ -178,7 +178,37 @@ const dispatchStock = async (req, res) => {
   }
 };
 
+const getAllTransactions = async (req, res) => {
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+
+  try {
+    const [rows] = await promisePool.execute(
+      `SELECT 
+        t.user_id,
+        t.sku,
+        t.batch_id,
+        t.quantity,
+        t.transaction_date,
+        COALESCE(u.username, 'Deleted User') AS username,
+        CASE WHEN t.destination IS NULL THEN t.supplier ELSE NULL END AS supplier,
+        CASE WHEN t.supplier IS NULL THEN t.destination ELSE NULL END AS destination,
+        t.notes
+      FROM transactions t
+      LEFT JOIN users u ON t.user_id = u.user_id
+      ORDER BY t.transaction_date DESC`
+    );
+
+    res.json({ success: true, data: rows });
+  } catch (error) {
+    console.error("Get all transactions error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
+  getAllTransactions,
   receiveStock,
   dispatchStock,
 };

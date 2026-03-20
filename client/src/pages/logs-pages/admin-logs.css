@@ -83,6 +83,22 @@
 
 .log-details li:last-child {
   color: #000;
-  font-size: 0.82rem;
   margin-top: 0.25rem;
+}
+
+.view-details-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.view-details-link {
+  color: #ff6200;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.view-details-link:hover {
+  opacity: 0.7;
 }

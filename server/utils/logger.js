@@ -146,10 +146,38 @@ const recentDispatches = async (req, res) => {
   }
 };
 
+const logsDetails = async (req, res) => {
+  try {
+    const { log_id } = req.params;
+    if (!log_id) {
+      return res.status(400).json({ success: false, message: "log_id parameter is required" });
+    }
+
+    const [rows] = await promisePool.execute(
+      `SELECT a.log_id, a.action, a.details, a.log_date,
+              COALESCE(u.username, 'Deleted User') AS username
+       FROM activity_logs a
+       LEFT JOIN users u ON a.user_id = u.user_id
+       WHERE a.log_id = ?`,
+      [log_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: "Log not found" });
+    }
+
+    res.json({ success: true, data: rows[0] });
+  } catch (error) {
+    console.error("Log details error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   logActivity,
   recentActivity,
   recentReceipts,
   recentDispatches,
   allActivities,
+  logsDetails,
 };
