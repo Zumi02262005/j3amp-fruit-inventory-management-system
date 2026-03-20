@@ -1,3 +1,7 @@
+body {
+  font-family: Inter;
+}
+
 .notification-wrapper {
   position: relative;
   display: inline-block;
@@ -22,13 +26,13 @@
   pointer-events: none;
 }
 
-/* Dropdown panel */
 .notification-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 320px;
-  max-height: 420px;
+  position: fixed;
+  top: 60px;
+  left: 8px;
+  right: 8px;
+  width: auto;
+  max-height: calc(100dvh - 80px);
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -36,6 +40,17 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+@media (min-width: 480px) {
+  .notification-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: auto;
+    right: 0;
+    width: 320px;
+    max-height: 420px;
+  }
 }
 
 .notification-panel-header {
@@ -72,6 +87,7 @@
   overflow-y: auto;
   flex: 1;
   padding: 8px 0;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
 .notification-empty {
@@ -98,15 +114,12 @@
   gap: 10px;
   flex: 1;
   align-items: flex-start;
-}
-
-.notification-icon-type {
-  font-size: 1.2rem;
-  flex-shrink: 0;
+  min-width: 0; /* prevents flex child from overflowing */
 }
 
 .notification-item-text {
   flex: 1;
+  min-width: 0; /* allows text to truncate/wrap properly */
 }
 
 .notification-message {
@@ -114,6 +127,7 @@
   font-size: 0.82rem;
   color: #333;
   line-height: 1.4;
+  word-break: break-word; /* wraps long words/strings */
 }
 
 .notification-time {

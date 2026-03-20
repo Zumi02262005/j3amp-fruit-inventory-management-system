@@ -88,7 +88,34 @@ const recentReceipts = async (req, res) => {
   }
 };
 
+const allActivities = async (req, res) => {
+  if (!req.user || req.user.role !== 'admin'){
+    return res.status(403).json({
+      success: false,
+      message: 'Forbidden'
+    });
+  }
+  try {
+    const query = `
+    SELECT a.log_id, a.user_id, a.action, a.details, a.log_date 
+    FROM activity_logs a 
+    ORDER BY a.log_date DESC 
+    `;
 
+    const [all_logs] = await promisePool.execute(query);
+
+    res.json({
+      success: true,
+      data: all_logs,
+    });
+  } catch (error) {
+    console.error("View recent activity error: ", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+}
 
 const recentDispatches = async (req, res) => {
   if (!req.user) {
@@ -124,4 +151,5 @@ module.exports = {
   recentActivity,
   recentReceipts,
   recentDispatches,
+  allActivities,
 };

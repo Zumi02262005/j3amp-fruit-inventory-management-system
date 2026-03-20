@@ -67,6 +67,7 @@ export const logsAPI = {
   recentActivity: () => api.get("/logs/recent-activity"),
   recentReceipts: () => api.get("/logs/recent-receipts"),
   recentDispatches: () => api.get("/logs/recent-dispatches"),
+  allActivities: () => api.get("/logs/all-activities"),
 };
 
 // ---- User API ----

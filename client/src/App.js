@@ -13,6 +13,7 @@ import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
 import Profile from "./pages/profile/Profile";
 import Users from "./pages/users/Users";
+import AdminLogs from "./pages/logs-pages/admin-logs";
 import "./App.css";
 
 function App() {
@@ -102,6 +103,16 @@ function App() {
                 <Users />
               </ProtectedRoute>
             }
+          />
+
+          {/* Logs - admin only */}
+          <Route 
+            path="/admin-logs"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLogs />
+              </ProtectedRoute>
+            } 
           />
 
           {/* Default Route */}
