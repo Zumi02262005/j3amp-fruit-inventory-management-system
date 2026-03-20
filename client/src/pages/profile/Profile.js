@@ -135,6 +135,7 @@ const Profile = () => {
           <h2 className="profile-full-name">{profile?.full_name}</h2>
           <span className="profile-role-badge">{profile?.role}</span>
           <p className="profile-username">@{profile?.username}</p>
+          <p className="profile-username">ID: {profile?.user_id}</p>
           {profile?.last_login && (
             <p className="profile-last-login">
               Last login: {new Date(profile.last_login).toLocaleString()}

@@ -178,6 +178,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
+  bottom: 110px;
   background: rgba(0, 0, 0, 0.4);
   z-index: 2000;
   display: flex;
@@ -191,7 +192,7 @@ body {
   border-radius: 20px;
   width: 100%;
   max-width: 420px;
-  max-height: 90vh;
+  max-height: calc(100vh - 130px);
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }

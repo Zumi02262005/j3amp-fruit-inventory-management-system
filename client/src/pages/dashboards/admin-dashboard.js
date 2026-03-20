@@ -112,7 +112,7 @@ const AdminDashboard = () => {
                 <ul key={activity.log_id} className="recent-activity-content">
                   <li>
                     <span className="activity-action"><strong>{activity.action}</strong> - </span>
-                    <span className="activity-user">{activity.user_id} - </span>
+                    <span className="activity-user">{activity.username} - </span>
                     <span className="activity-details">{activity.details} - </span>
                     <span className="activity-date">{new Date(activity.log_date).toLocaleDateString()}</span>
                   </li>

@@ -14,6 +14,10 @@ const {
   getBatches,
   getSkuDropdown,
   getSkuDropdownDispatch,
+  createSku,
+  updateInventoryItem,
+  deactivateSku,
+  updateBatch,
 } = require("../controllers/inventoryController");
 const { authenticateToken, authorizeRole } = require("../middleware/authMiddleware");
 
@@ -27,8 +31,12 @@ router.get("/expiring-items", authenticateToken, getExpiringItems);
 router.get("/expired-items", authenticateToken, getExpiredItems);
 router.get("/expired-count", authenticateToken, getExpiredCount);
 router.get("/batches/:sku", authenticateToken, getBatches);
-router.post("/auto-expire", authenticateToken, authorizeRole("admin"), autoExpireBatches);
 router.get("/sku-dropdown", authenticateToken, getSkuDropdown);
 router.get("/sku-dropdown/dispatch", authenticateToken, getSkuDropdownDispatch);
+router.post("/auto-expire", authenticateToken, authorizeRole("admin"), autoExpireBatches);
+router.post("/", authenticateToken, authorizeRole("admin"), createSku);
+router.put("/:sku", authenticateToken, authorizeRole("admin"), updateInventoryItem);
+router.patch("/:sku/deactivate", authenticateToken, authorizeRole("admin"), deactivateSku);
+router.patch("/batches/:batch_id", authenticateToken, authorizeRole("admin"), updateBatch);
 
 module.exports = router;

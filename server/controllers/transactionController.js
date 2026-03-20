@@ -12,6 +12,13 @@ const receiveStock = async (req, res) => {
   try {
     await connection.beginTransaction();
 
+    // Look up product name for the log message
+    const [[product]] = await connection.execute(
+      `SELECT product_name FROM inventory WHERE sku = ?`,
+      [sku]
+    );
+    const productName = product?.product_name || sku;
+
     const batchQuery = `
             INSERT INTO batches 
             (sku, quantity, remaining_quantity, expiration_date, received_by, received_date, supplier_name, quality_notes) 
@@ -46,11 +53,11 @@ const receiveStock = async (req, res) => {
     await logActivity(
       userId,
       "RECEIVE STOCK",
-      `Received ${quantity} units of ${sku} (Batch: ${newBatchId})`,
+      `Received ${quantity} units of ${productName} (Batch ${newBatchId}) from ${supplier_name || "Unknown Supplier"}`,
     );
 
     await connection.commit();
-    
+
     // Auto-generate alerts after stock change
     await runAlertGeneration();
 
@@ -60,13 +67,8 @@ const receiveStock = async (req, res) => {
       data: { batchId: newBatchId, sku, quantity },
     });
   } catch (error) {
-    await logActivity(
-      userId,
-      "RECEIVE STOCK",
-      `Receiving ${quantity} units of ${sku} (Batch: ${newBatchId}) Failure`,
-    );
     await connection.rollback();
-    console.error("Detailed SQL Error: ", error); // Look at your terminal for this!
+    console.error("Detailed SQL Error: ", error);
     res.status(500).json({
       success: false,
       message: "Failed to receive stock. Database rolled back",
@@ -77,13 +79,20 @@ const receiveStock = async (req, res) => {
   }
 };
 
-//Dispacth Stock
+// Dispatch Stock
 const dispatchStock = async (req, res) => {
   const { sku, batch_id, client_name, quantity } = req.body;
   const userId = req.user.userId;
   const connection = await promisePool.getConnection();
   try {
     await connection.beginTransaction();
+
+    // Look up product name for the log message
+    const [[product]] = await connection.execute(
+      `SELECT product_name FROM inventory WHERE sku = ?`,
+      [sku]
+    );
+    const productName = product?.product_name || sku;
 
     const [requestedBatch] = await connection.execute(
       `SELECT batch_id, remaining_quantity, expiration_date 
@@ -108,12 +117,12 @@ const dispatchStock = async (req, res) => {
       [sku, requestedBatch[0].expiration_date, requestedBatch[0].expiration_date, batch_id]
     );
 
-    const totalAvailable = queue.reduce((sum, b) => sum + parseFloat(b.remaining_quantity), 0); // ✅ fix #1
+    const totalAvailable = queue.reduce((sum, b) => sum + parseFloat(b.remaining_quantity), 0);
     if (totalAvailable < quantity) {
       await connection.rollback();
       return res.status(400).json({
         success: false,
-        message: `Insufficient Stock. Available: ${totalAvailable} kg across all batches for SKU ${sku}.`, // ✅ fix #1
+        message: `Insufficient Stock. Available: ${totalAvailable} kg across all batches for SKU ${sku}.`,
       });
     }
 
@@ -121,11 +130,11 @@ const dispatchStock = async (req, res) => {
     for (const batch of queue) {
       if (remaining <= 0) break;
 
-      const available = parseFloat(batch.remaining_quantity); // ✅ fix #2
+      const available = parseFloat(batch.remaining_quantity);
       const toDeduct = Math.min(available, remaining);
       const newQty = available - toDeduct;
 
-      await connection.execute( // ✅ fix #3
+      await connection.execute(
         `UPDATE batches 
          SET remaining_quantity = ?, status = IF(? = 0, 'depleted', 'active') 
          WHERE batch_id = ?`,
@@ -136,7 +145,7 @@ const dispatchStock = async (req, res) => {
         `INSERT INTO transactions 
          (transaction_type, user_id, sku, batch_id, quantity, destination, notes) 
          VALUES ('dispatch', ?, ?, ?, ?, ?, ?)`,
-        [userId, sku, batch.batch_id, toDeduct, client_name, `Dispatched from batch ${batch.batch_id} for client ${client_name}`]
+        [userId, sku, batch.batch_id, toDeduct, client_name, `Dispatched from batch ${batch.batch_id}`]
       );
 
       remaining -= toDeduct;
@@ -145,7 +154,7 @@ const dispatchStock = async (req, res) => {
     await logActivity(
       userId,
       "DISPATCH STOCK",
-      `Dispatched ${quantity} units of ${sku} starting from Batch ${batch_id} (FIFO)`
+      `Dispatched ${quantity} units of ${productName} (Batch ${batch_id}) to ${client_name}`
     );
 
     await connection.commit();
@@ -160,12 +169,6 @@ const dispatchStock = async (req, res) => {
     });
 
   } catch (error) {
-    await logActivity(
-      userId,
-      "DISPATCH STOCK FAIL",
-      `Dispatch ${quantity} units of ${sku} starting from Batch ${batch_id} Failure`
-    );
-
     await connection.rollback();
     console.error("Detailed SQL Error: ", error);
     res.status(500).json({
@@ -192,11 +195,13 @@ const getAllTransactions = async (req, res) => {
         t.quantity,
         t.transaction_date,
         COALESCE(u.username, 'Deleted User') AS username,
+        COALESCE(i.product_name, t.sku) AS product_name,
         CASE WHEN t.destination IS NULL THEN t.supplier ELSE NULL END AS supplier,
         CASE WHEN t.supplier IS NULL THEN t.destination ELSE NULL END AS destination,
         t.notes
       FROM transactions t
       LEFT JOIN users u ON t.user_id = u.user_id
+      LEFT JOIN inventory i ON t.sku = i.sku
       ORDER BY t.transaction_date DESC`
     );
 

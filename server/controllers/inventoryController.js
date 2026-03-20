@@ -119,7 +119,6 @@ const getExpiringItems = async (req, res) => {
   }
 };
 
-// ---- Get expired batches ----
 const getExpiredItems = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -143,7 +142,6 @@ const getExpiredItems = async (req, res) => {
   }
 };
 
-// ---- Get expired batch count ----
 const getExpiredCount = async (req, res) => {
   try {
     const [[{ expired_count }]] = await promisePool.execute(
@@ -156,7 +154,6 @@ const getExpiredCount = async (req, res) => {
   }
 };
 
-// ---- Auto-expire logic (reusable internally) ----
 const runAutoExpire = async () => {
   try {
     const [result] = await promisePool.execute(
@@ -173,7 +170,6 @@ const runAutoExpire = async () => {
   }
 };
 
-// ---- Auto-expire endpoint (manual trigger) ----
 const autoExpireBatches = async (req, res) => {
   try {
     const expired = await runAutoExpire();
@@ -211,7 +207,6 @@ const getBatches = async (req, res) => {
   }
 };
 
-// ---- SKU Dropdown (for receive form) ----
 const getSkuDropdown = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -234,7 +229,6 @@ const getSkuDropdown = async (req, res) => {
   }
 };
 
-// ---- SKU Dropdown for Dispatch only ----
 const getSkuDropdownDispatch = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -258,6 +252,154 @@ const getSkuDropdownDispatch = async (req, res) => {
   }
 };
 
+// ---- ADMIN: Create new SKU ----
+const createSku = async (req, res) => {
+  try {
+    const { sku, product_name, category, supplier, reorder_point } = req.body;
+
+    if (!sku || !product_name || !category || !supplier) {
+      return res.status(400).json({
+        success: false,
+        message: "SKU, product name, category, and supplier are required",
+      });
+    }
+
+    const [existing] = await promisePool.execute(
+      "SELECT sku FROM inventory WHERE sku = ?",
+      [sku]
+    );
+    if (existing.length > 0) {
+      return res.status(409).json({ success: false, message: "SKU already exists" });
+    }
+
+    await promisePool.execute(
+      `INSERT INTO inventory (sku, product_name, category, supplier, reorder_point, created_by, status)
+       VALUES (?, ?, ?, ?, ?, ?, 'active')`,
+      [sku, product_name, category, supplier, reorder_point || 50.00, req.user.userId]
+    );
+
+    await logActivity(
+      req.user.userId,
+      "SKU_CREATED",
+      `Admin created new SKU: ${sku} — ${product_name}`
+    );
+
+    res.status(201).json({ success: true, message: "SKU created successfully" });
+  } catch (error) {
+    console.error("Create SKU error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ---- ADMIN: Update inventory item info ----
+const updateInventoryItem = async (req, res) => {
+  try {
+    const { sku } = req.params;
+    const { product_name, category, supplier, reorder_point } = req.body;
+
+    if (!product_name || !category || !supplier) {
+      return res.status(400).json({
+        success: false,
+        message: "Product name, category, and supplier are required",
+      });
+    }
+
+    const [existing] = await promisePool.execute(
+      "SELECT sku FROM inventory WHERE sku = ?",
+      [sku]
+    );
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: "SKU not found" });
+    }
+
+    await promisePool.execute(
+      `UPDATE inventory SET product_name = ?, category = ?, supplier = ?, reorder_point = ?
+       WHERE sku = ?`,
+      [product_name, category, supplier, reorder_point || 50.00, sku]
+    );
+
+    await logActivity(
+      req.user.userId,
+      "INVENTORY_UPDATED",
+      `Admin updated inventory item: ${sku} — ${product_name}`
+    );
+
+    res.json({ success: true, message: "Inventory item updated successfully" });
+  } catch (error) {
+    console.error("Update inventory item error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ---- ADMIN: Deactivate SKU ----
+const deactivateSku = async (req, res) => {
+  try {
+    const { sku } = req.params;
+
+    const [existing] = await promisePool.execute(
+      "SELECT sku, product_name FROM inventory WHERE sku = ? AND status = 'active'",
+      [sku]
+    );
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: "SKU not found or already inactive" });
+    }
+
+    await promisePool.execute(
+      "UPDATE inventory SET status = 'inactive' WHERE sku = ?",
+      [sku]
+    );
+
+    await logActivity(
+      req.user.userId,
+      "SKU_DEACTIVATED",
+      `Admin deactivated SKU: ${sku} — ${existing[0].product_name}`
+    );
+
+    res.json({ success: true, message: "SKU deactivated successfully" });
+  } catch (error) {
+    console.error("Deactivate SKU error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ---- ADMIN: Update batch quantity ----
+const updateBatch = async (req, res) => {
+  try {
+    const { batch_id } = req.params;
+    const { remaining_quantity } = req.body;
+
+    if (remaining_quantity === undefined || remaining_quantity === null) {
+      return res.status(400).json({ success: false, message: "remaining_quantity is required" });
+    }
+
+    const [existing] = await promisePool.execute(
+      "SELECT batch_id, sku, remaining_quantity FROM batches WHERE batch_id = ?",
+      [batch_id]
+    );
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: "Batch not found" });
+    }
+
+    const newStatus = parseFloat(remaining_quantity) === 0 ? "depleted" : "active";
+
+    await promisePool.execute(
+      "UPDATE batches SET remaining_quantity = ?, status = ? WHERE batch_id = ?",
+      [remaining_quantity, newStatus, batch_id]
+    );
+
+    await logActivity(
+      req.user.userId,
+      "BATCH_UPDATED",
+      `Admin updated Batch #${batch_id} (SKU: ${existing[0].sku}) quantity from ${existing[0].remaining_quantity} to ${remaining_quantity}`
+    );
+
+    res.json({ success: true, message: "Batch updated successfully" });
+  } catch (error) {
+    console.error("Update batch error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   viewInventory,
   getInventoryTotal,
@@ -273,4 +415,8 @@ module.exports = {
   getBatches,
   getSkuDropdown,
   getSkuDropdownDispatch,
+  createSku,
+  updateInventoryItem,
+  deactivateSku,
+  updateBatch,
 };

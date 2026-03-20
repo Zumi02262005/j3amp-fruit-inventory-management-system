@@ -11,7 +11,7 @@ const LogCard = ({ transaction }) => {
     <div className="log-card">
       <p className="log-action">{type}</p>
       <ul className="log-details">
-        <li><strong>{transaction.sku}</strong> — Batch {transaction.batch_id}</li>
+        <li><strong>{transaction.product_name}</strong> — Batch {transaction.batch_id}</li>
         <li>Quantity: {transaction.quantity} kg</li>
         <li>By: {transaction.username}</li>
         {transaction.supplier && <li>Supplier: {transaction.supplier}</li>}

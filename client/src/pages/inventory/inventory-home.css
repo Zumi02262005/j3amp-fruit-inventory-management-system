@@ -391,3 +391,146 @@ body {
   justify-content: space-between;
   align-items: center;
 }
+
+.inventory-home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2rem) 0;
+}
+
+.add-sku-btn {
+  background: #ff6200;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-sku-btn:hover {
+  background: #e55a00;
+}
+
+/* Edit button on item page */
+.edit-item-btn {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0.75rem;
+}
+
+.edit-item-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Shared inventory modal styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  bottom: 110px;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.inv-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.inv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.inv-modal-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.inv-modal-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.inv-modal-close:hover { color: #333; }
+
+.inv-modal-form {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inv-modal-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.inv-modal-input-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.inv-modal-input-group input {
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  outline: none;
+}
+
+.inv-modal-input-group input:focus {
+  border-color: #ff6200;
+}
+
+.inv-modal-submit-btn {
+  background: #ff6200;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 11px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.inv-modal-submit-btn:hover { background: #e55a00; }
+
+.inv-modal-status {
+  margin: 0 1.5rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.inv-modal-status.success { background: #e8f5e9; color: #2e7d32; }
+.inv-modal-status.error { background: #ffebee; color: #c62828; }
+.inv-modal-status.loading { background: #fff8e1; color: #f57f17; }

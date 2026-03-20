@@ -54,6 +54,10 @@ export const inventoryAPI = {
   autoExpireBatches: () => api.post("/inventory/auto-expire"),
   getSkuDropdown: () => api.get("/inventory/sku-dropdown"),
   getSkuDropdownDispatch: () => api.get("/inventory/sku-dropdown/dispatch"),
+  createSku: (data) => api.post("/inventory", data),
+  updateInventoryItem: (sku, data) => api.put(`/inventory/${sku}`, data),
+  deactivateSku: (sku) => api.patch(`/inventory/${sku}/deactivate`),
+  updateBatch: (batchId, data) => api.patch(`/inventory/batches/${batchId}`, data),
 };
 
 // ---- Transaction API ----

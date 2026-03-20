@@ -157,7 +157,7 @@ const NavigationBar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/logs">
+              <NavLink to="/inbound-logs">
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
                   <path
                     d="M12 7C12 6.44772 12.4477 6 13 6C13.5523 6 14 6.44772 14 7V15H12V7Z"
@@ -217,7 +217,7 @@ const NavigationBar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/logs">
+              <NavLink to="/outbound-logs">
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
                   <path
                     d="M12 7C12 6.44772 12.4477 6 13 6C13.5523 6 14 6.44772 14 7V15H12V7Z"

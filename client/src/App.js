@@ -14,6 +14,8 @@ import DispatchStock from "./pages/transactions/dispatch-stock";
 import Profile from "./pages/profile/Profile";
 import Users from "./pages/users/Users";
 import AdminLogs from "./pages/logs-pages/admin-logs";
+import InboundLogs from "./pages/logs-pages/inbound-logs";
+import OutboundLogs from "./pages/logs-pages/outbound-logs";
 import "./App.css";
 
 function App() {
@@ -22,103 +24,22 @@ function App() {
       <AuthProvider>
         <NavigationBar />
         <Routes>
-          {/* Public Routes */}
           <Route path="/login" element={<Login />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/admin-dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/inbound-dashboard" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundDashboard /></ProtectedRoute>} />
+          <Route path="/outbound-dashboard" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundDashboard /></ProtectedRoute>} />
+          <Route path="/inventory-home" element={<ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}><InventoryHome /></ProtectedRoute>} />
+          <Route path="/receive-stock" element={<ProtectedRoute allowedRoles={["inbound"]}><ReceiveStock /></ProtectedRoute>} />
+          <Route path="/dispatch-stock" element={<ProtectedRoute allowedRoles={["outbound"]}><DispatchStock /></ProtectedRoute>} />
+          <Route path="/inventory/:sku" element={<InventoryItem />} />
+          <Route path="/profile" element={<ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}><Profile /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute allowedRoles={["admin"]}><Users /></ProtectedRoute>} />
+          <Route path="/admin-logs" element={<ProtectedRoute allowedRoles={["admin"]}><AdminLogs /></ProtectedRoute>} />
+          <Route path="/inbound-logs" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundLogs /></ProtectedRoute>} />
+          <Route path="/outbound-logs" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundLogs /></ProtectedRoute>} />
 
-          <Route
-            path="/inbound-dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["inbound"]}>
-                <InboundDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/outbound-dashboard"
-            element={
-              <ProtectedRoute allowedRoles={["outbound"]}>
-                <OutboundDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory-home"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
-                <InventoryHome />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/receive-stock"
-            element={
-              <ProtectedRoute allowedRoles={["inbound"]}>
-                <ReceiveStock />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/dispatch-stock"
-            element={
-              <ProtectedRoute allowedRoles={["outbound"]}>
-                <DispatchStock />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/inventory/:sku"
-            element={<InventoryItem />}
-          />
-
-          {/* Profile - all roles */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Users - admin only */}
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Users />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Logs - admin only */}
-          <Route 
-            path="/admin-logs"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <AdminLogs />
-              </ProtectedRoute>
-            } 
-          />
-
-          {/* Default Route */}
           <Route path="/" element={<Navigate to="/login" replace />} />
-
-          {/* 404 Route */}
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </AuthProvider>

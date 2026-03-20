@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 import "./inventory-home.css";
 
 const ExpiredCard = ({ item, navigate }) => {
@@ -25,6 +26,7 @@ const ExpiredCard = ({ item, navigate }) => {
 };
 
 const InventoryHome = () => {
+  const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,89 +37,80 @@ const InventoryHome = () => {
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
 
+  // Add SKU modal state
+  const [showAddSku, setShowAddSku] = useState(false);
+  const [skuForm, setSkuForm] = useState({
+    sku: "",
+    product_name: "",
+    category: "",
+    supplier: "",
+    reorder_point: "50",
+  });
+  const [skuStatus, setSkuStatus] = useState({ type: "", msg: "" });
+
   const navigate = useNavigate();
 
+  const fetchAll = async () => {
+    try {
+      const [invRes, lowRes, expRes, expiredRes, totalRes, catRes, expCountRes] = await Promise.all([
+        inventoryAPI.getInventory(),
+        inventoryAPI.getLowStockItems(),
+        inventoryAPI.getExpiringItems(),
+        inventoryAPI.getExpiredItems(),
+        inventoryAPI.getInventoryTotal(),
+        inventoryAPI.getInventoryCategories(),
+        inventoryAPI.getExpiringBatches(),
+      ]);
+      if (invRes.data.success) setItems(invRes.data.data);
+      if (lowRes.data.success) setLowStockItems(lowRes.data.data);
+      if (expRes.data.success) setExpiringItems(expRes.data.data);
+      if (expiredRes.data.success) setExpiredItems(expiredRes.data.data);
+      setTotalStock(totalRes.data.data);
+      setTotalCategories(catRes.data.data);
+      setExpiringCount(expCountRes.data.data);
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to load inventory");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchInventory = async () => {
-      try {
-        const response = await inventoryAPI.getInventory();
-        if (response.data.success) setItems(response.data.data);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load inventory");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchLowStock = async () => {
-      try {
-        const response = await inventoryAPI.getLowStockItems();
-        if (response.data.success) setLowStockItems(response.data.data);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load low stock items");
-      }
-    };
-
-    const fetchExpiring = async () => {
-      try {
-        const response = await inventoryAPI.getExpiringItems();
-        if (response.data.success) setExpiringItems(response.data.data);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to load expiring items");
-      }
-    };
-
-    const fetchExpired = async () => {
-      try {
-        const response = await inventoryAPI.getExpiredItems();
-        if (response.data.success) setExpiredItems(response.data.data);
-      } catch (err) {
-        console.error("Failed to load expired items:", err);
-      }
-    };
-
-    const fetchTotalStock = async () => {
-      try {
-        const response = await inventoryAPI.getInventoryTotal();
-        setTotalStock(response.data.data);
-      } catch (err) {
-        setTotalStock("N/A");
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const response = await inventoryAPI.getInventoryCategories();
-        setTotalCategories(response.data.data);
-      } catch (err) {
-        setTotalCategories("N/A");
-      }
-    };
-
-    const fetchExpiringBatches = async () => {
-      try {
-        const response = await inventoryAPI.getExpiringBatches();
-        setExpiringCount(response.data.data);
-      } catch (err) {
-        setExpiringCount("N/A");
-      }
-    };
-
-    fetchTotalStock();
-    fetchExpiringBatches();
-    fetchCategories();
-    fetchExpiring();
-    fetchLowStock();
-    fetchExpired();
-    fetchInventory();
+    fetchAll();
   }, []);
+
+  const handleSkuFormChange = (e) => {
+    setSkuForm({ ...skuForm, [e.target.name]: e.target.value });
+  };
+
+  const handleSkuSubmit = async (e) => {
+    e.preventDefault();
+    setSkuStatus({ type: "loading", msg: "Creating SKU..." });
+    try {
+      await inventoryAPI.createSku(skuForm);
+      setSkuStatus({ type: "success", msg: "SKU created successfully!" });
+      setSkuForm({ sku: "", product_name: "", category: "", supplier: "", reorder_point: "50" });
+      setShowAddSku(false);
+      fetchAll();
+    } catch (err) {
+      setSkuStatus({ type: "error", msg: err.response?.data?.message || "Failed to create SKU." });
+    }
+  };
 
   if (loading) return <div className="loader">Loading inventory...</div>;
   if (error) return <div className="error-bar">{error}</div>;
 
   return (
     <div className="inventory-home-container page-with-navbar">
-      <p className="inventory-home-label">Inventory</p>
+      <div className="inventory-home-header">
+        <p className="inventory-home-label">Inventory</p>
+        {user?.role === "admin" && (
+          <button className="add-sku-btn" onClick={() => setShowAddSku(true)}>
+            + Add SKU
+          </button>
+        )}
+      </div>
+
       <div className="inventory-content">
 
         {/* Stock Overview */}
@@ -160,10 +153,7 @@ const InventoryHome = () => {
                     <li>Reorder Point: {parseFloat(item.reorder_point).toFixed(2)} kg</li>
                   </ul>
                   <div className="view-details-container">
-                    <span
-                      className="view-details-link"
-                      onClick={() => navigate(`/inventory/${item.sku}`)}
-                    >
+                    <span className="view-details-link" onClick={() => navigate(`/inventory/${item.sku}`)}>
                       View Details &rarr;
                     </span>
                   </div>
@@ -191,10 +181,7 @@ const InventoryHome = () => {
                     <li>Expires: {new Date(item.expiration_date).toLocaleDateString()}</li>
                   </ul>
                   <div className="view-details-container">
-                    <span
-                      className="view-details-link"
-                      onClick={() => navigate(`/inventory/${item.sku}`)}
-                    >
+                    <span className="view-details-link" onClick={() => navigate(`/inventory/${item.sku}`)}>
                       View Details &rarr;
                     </span>
                   </div>
@@ -230,11 +217,7 @@ const InventoryHome = () => {
                     <li>Total: {stock} kg</li>
                   </ul>
                   <div className="view-details-container">
-                    <span
-                      className="view-details-link"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => navigate(`/inventory/${item.sku}`)}
-                    >
+                    <span className="view-details-link" onClick={() => navigate(`/inventory/${item.sku}`)}>
                       View Details &rarr;
                     </span>
                   </div>
@@ -245,6 +228,44 @@ const InventoryHome = () => {
         </div>
 
       </div>
+
+      {/* Add SKU Modal */}
+      {showAddSku && (
+        <div className="modal-overlay" onClick={() => setShowAddSku(false)}>
+          <div className="inv-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="inv-modal-header">
+              <h3>Add New SKU</h3>
+              <button className="inv-modal-close" onClick={() => setShowAddSku(false)}>✕</button>
+            </div>
+            {skuStatus.msg && (
+              <div className={`inv-modal-status ${skuStatus.type}`}>{skuStatus.msg}</div>
+            )}
+            <form onSubmit={handleSkuSubmit} className="inv-modal-form">
+              <div className="inv-modal-input-group">
+                <label>SKU</label>
+                <input type="text" name="sku" value={skuForm.sku} onChange={handleSkuFormChange} required />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Product Name</label>
+                <input type="text" name="product_name" value={skuForm.product_name} onChange={handleSkuFormChange} required />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Category</label>
+                <input type="text" name="category" value={skuForm.category} onChange={handleSkuFormChange} required />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Supplier</label>
+                <input type="text" name="supplier" value={skuForm.supplier} onChange={handleSkuFormChange} required />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Reorder Point (kg)</label>
+                <input type="number" name="reorder_point" value={skuForm.reorder_point} onChange={handleSkuFormChange} step="0.01" min="0" required />
+              </div>
+              <button type="submit" className="inv-modal-submit-btn">Create SKU</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -25,8 +25,10 @@ const recentActivity = async (req, res) => {
   }
   try {
     const query = `
-    SELECT a.log_id, a.user_id, a.action, a.details, a.log_date 
-    FROM activity_logs a 
+    SELECT a.log_id, a.action, a.details, a.log_date,
+           COALESCE(u.username, 'Deleted User') AS username
+    FROM activity_logs a
+    LEFT JOIN users u ON a.user_id = u.user_id
     ORDER BY a.log_date DESC 
     LIMIT 10
     `;

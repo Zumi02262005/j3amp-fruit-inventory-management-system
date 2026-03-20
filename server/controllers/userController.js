@@ -88,7 +88,7 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { full_name, email, phone, role, status } = req.body;
+    const { username, full_name, email, phone, role, status } = req.body;
 
     const [existing] = await promisePool.execute(
       "SELECT user_id, username FROM users WHERE user_id = ?",
@@ -98,16 +98,27 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
+    // Check if new username is taken by another user
+    if (username && username !== existing[0].username) {
+      const [taken] = await promisePool.execute(
+        "SELECT user_id FROM users WHERE username = ? AND user_id != ?",
+        [username, id]
+      );
+      if (taken.length > 0) {
+        return res.status(409).json({ success: false, message: "Username already taken" });
+      }
+    }
+
     await promisePool.execute(
-      `UPDATE users SET full_name = ?, email = ?, phone = ?, role = ?, status = ?
+      `UPDATE users SET username = ?, full_name = ?, email = ?, phone = ?, role = ?, status = ?
        WHERE user_id = ?`,
-      [full_name, email, phone || null, role, status, id]
+      [username || existing[0].username, full_name, email, phone || null, role, status, id]
     );
 
     await logActivity(
       req.user.userId,
       "USER_UPDATED",
-      `Admin updated user: ${existing[0].username}`
+      `Admin updated user: ${existing[0].username}${username && username !== existing[0].username ? ` → ${username}` : ""}`
     );
 
     res.json({ success: true, message: "User updated successfully" });

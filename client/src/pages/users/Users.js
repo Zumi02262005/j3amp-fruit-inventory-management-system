@@ -7,7 +7,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null); // for edit modal
+  const [selectedUser, setSelectedUser] = useState(null);
   const [status, setStatus] = useState({ type: "", msg: "" });
 
   const [createForm, setCreateForm] = useState({
@@ -20,6 +20,7 @@ const Users = () => {
   });
 
   const [editForm, setEditForm] = useState({
+    username: "",
     full_name: "",
     email: "",
     phone: "",
@@ -112,6 +113,7 @@ const Users = () => {
   const openEditModal = (user) => {
     setSelectedUser(user);
     setEditForm({
+      username: user.username,
       full_name: user.full_name,
       email: user.email,
       phone: user.phone || "",
@@ -268,6 +270,10 @@ const Users = () => {
             )}
 
             <form onSubmit={handleEditSubmit} className="modal-form">
+              <div className="modal-input-group">
+                <label>Username</label>
+                <input type="text" name="username" value={editForm.username} onChange={handleEditChange} required />
+              </div>
               <div className="modal-input-group">
                 <label>Full Name</label>
                 <input type="text" name="full_name" value={editForm.full_name} onChange={handleEditChange} required />
