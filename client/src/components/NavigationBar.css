@@ -5,7 +5,6 @@
   background-color: white;
   padding: 0 2rem;
   height: 110px;
-
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
   border-top: 2px solid #e2e2e2;
   position: fixed;
@@ -26,6 +25,7 @@
   gap: 2rem;
 }
 
+/* ── Nav item animations ── */
 .navbar-links li a {
   display: flex;
   flex-direction: column;
@@ -37,23 +37,50 @@
   font-family: Inter;
   font-weight: 500;
   font-size: 0.85rem;
-  transition: color 0.2s ease-in-out;
   white-space: nowrap;
+  position: relative;
+  padding: 6px 10px;
+  border-radius: 14px;
+  transition: color 0.2s ease,
+              background 0.2s ease,
+              transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Active pill background */
+.navbar-links li a.active {
+  color: #ff6200;
+  transform: translateY(-4px);
 }
 
 .navbar-links li a:hover {
   color: #ff6200;
+  transform: translateY(-2px);
 }
 
-.navbar-links li a:hover,
-.navbar-links li a.active {
-  color: #ff6200;
+/* Spring squish on tap */
+.navbar-links li a:active {
+  transform: scale(0.88) translateY(0px);
+  transition: transform 0.1s ease;
 }
 
+/* ── Icon animations ── */
 .navbar-links li a svg {
   width: 25px;
   height: 25px;
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.navbar-links li a:hover svg {
+  transform: scale(1.2);
+}
+
+.navbar-links li a.active svg {
+  transform: scale(1.15);
+}
+
+/* ── Label color on active ── */
+.navbar-links li a span {
+  transition: color 0.2s ease;
 }
 
 .navbar-user {
@@ -94,30 +121,24 @@
   .navbar {
     padding: 0 1rem;
   }
-
   .navbar-brand {
     display: none;
   }
-
   .navbar-links {
     flex: 2;
     justify-content: space-around;
     gap: 0.5rem;
   }
-
   .navbar-links li a {
     font-size: 0.9rem;
   }
-
   .user-badge {
     display: none;
   }
-
   .navbar-user {
     flex: initial;
     margin-left: 1rem;
   }
-
   .logout-btn {
     padding: 4px 10px;
     font-size: 0.8rem;

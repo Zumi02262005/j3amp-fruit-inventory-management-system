@@ -12,7 +12,6 @@ body {
 }
 
 .dashboard-header {
-  /* Fluid margins: scales down automatically on mobile */
   margin: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
   display: flex;
   align-items: center;
@@ -35,11 +34,16 @@ body {
 .dashboard-overview-label {
   color: #000;
   margin-right: 10vw;
-  /* Fluid text: minimum 1.2rem, scales with screen, max 1.5rem */
   font:
     700 clamp(1.2rem, 4vw, 1.5rem)/1.2 Inter,
     sans-serif;
   word-wrap: break-word;
+}
+
+/* ── Button animations ── */
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.5; }
+  to   { transform: scale(4); opacity: 0; }
 }
 
 .notification-button,
@@ -65,7 +69,7 @@ body {
   height: auto;
 }
 
-/* ── Stock Overview (Fixed Text Scaling) ── */
+/* ── Stock Overview ── */
 .stock-overview {
   width: 100%;
   max-width: 360px;
@@ -80,7 +84,6 @@ body {
   color: #fff;
 }
 
-/* Removed rigid 148px/93px widths so flexbox can breathe */
 .total-stock-section,
 .stock-subsection {
   display: flex;
@@ -89,14 +92,10 @@ body {
 }
 
 .total-stock {
-  font:
-    700 clamp(0.85rem, 3vw, 1rem) Inter,
-    sans-serif;
+  font: 700 clamp(0.85rem, 3vw, 1rem) Inter, sans-serif;
 }
 .total-stock-amount {
-  font:
-    700 clamp(1.25rem, 6vw, 1.625rem) Inter,
-    sans-serif;
+  font: 700 clamp(1.25rem, 6vw, 1.625rem) Inter, sans-serif;
 }
 
 .categories-section,
@@ -109,22 +108,19 @@ body {
 
 .expiring,
 .categories {
-  font:
-    700 clamp(0.6rem, 2vw, 0.7rem) Inter,
-    sans-serif;
+  font: 700 clamp(0.6rem, 2vw, 0.7rem) Inter, sans-serif;
 }
 .categories-count,
 .expiring-count {
-  font:
-    700 clamp(0.9rem, 3vw, 1.1rem) Inter,
-    sans-serif;
+  font: 700 clamp(0.9rem, 3vw, 1.1rem) Inter, sans-serif;
 }
 
+/* ── Recent Activity ── */
 .recent-activity {
   border-radius: 20px;
-background: #FFF;
-box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
-width: 100%;
+  background: #fff;
+  box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
+  width: 100%;
   margin-bottom: 1.5rem;
   box-sizing: border-box;
   font-family: Inter;
@@ -154,20 +150,42 @@ width: 100%;
   margin-bottom: 1.5rem;
 }
 
-/* Targets all 4 cards dynamically */
 #admin-quick-actions > * {
   width: 100%;
-  aspect-ratio: 1 / 0.9; /* Automatically maintains proportion without hardcoding height! */
+  aspect-ratio: 1 / 0.9;
   border-radius: 10px;
   background: #fff;
   box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease,
+              background 0.2s ease;
+}
+
+#admin-quick-actions > * .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 98, 0, 0.2);
+  width: 60px;
+  height: 60px;
+  margin-top: -30px;
+  margin-left: -30px;
+  pointer-events: none;
+  animation: ripple 0.55s linear forwards;
 }
 
 #admin-quick-actions > *:hover {
   background: #f0f0f0;
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+#admin-quick-actions > *:active {
+  transform: scale(0.96);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 /* ── Info Cards ── */
@@ -188,14 +206,14 @@ width: 100%;
 .next-steps h3 {
   margin: 0 0 0.75rem;
   color: #333;
-  font-size: clamp(1.1rem, 4vw, 1.5rem); /* Fluid headers */
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
 }
 
 .welcome-section p,
 .info-card li,
 .next-steps li {
   color: #666;
-  font-size: clamp(0.9rem, 3vw, 1.1rem); /* Fluid paragraph text */
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
   margin: 0;
 }
 

@@ -1,7 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { userAPI } from "../../services/api";
 import "./Users.css";
+import add_users_icon from "../../assets/icons/manage_users_icon.svg";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const Users = () => {
   const navigate = useNavigate();
@@ -32,10 +48,44 @@ const Users = () => {
   });
 
   const [resetPassword, setResetPassword] = useState("");
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [editRoleDropdownOpen, setEditRoleDropdownOpen] = useState(false);
+  const [editStatusDropdownOpen, setEditStatusDropdownOpen] = useState(false);
+
+  const createRipple = useRipple();
+
+  const roles = [
+    { value: "inbound",  label: "Inbound" },
+    { value: "outbound", label: "Outbound" },
+    { value: "admin",    label: "Admin" },
+  ];
+
+  const statuses = [
+    { value: "active",   label: "Active" },
+    { value: "inactive", label: "Inactive" },
+  ];
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".custom-role-dropdown"))   setRoleDropdownOpen(false);
+      if (!e.target.closest(".custom-edit-role-dropdown"))   setEditRoleDropdownOpen(false);
+      if (!e.target.closest(".custom-edit-status-dropdown")) setEditStatusDropdownOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Lock body scroll when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = showCreateForm || !!selectedUser;
+    document.body.style.overflow = isAnyModalOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showCreateForm, selectedUser]);
 
   const fetchUsers = async () => {
     try {
@@ -127,7 +177,6 @@ const Users = () => {
     setStatus({ type: "", msg: "" });
   };
 
-  // Filter users by search query (first or last name)
   const filterUsers = (userList) => {
     if (!searchQuery.trim()) return userList;
     const query = searchQuery.toLowerCase();
@@ -147,9 +196,6 @@ const Users = () => {
     <div className="users-container page-with-navbar">
       <div className="users-header">
         <p className="users-label">Manage Users</p>
-        <button className="create-user-btn" onClick={() => setShowCreateForm(true)}>
-          + New User
-        </button>
       </div>
 
       {/* Search Bar */}
@@ -168,6 +214,17 @@ const Users = () => {
       )}
 
       <div className="users-content">
+
+        {/* Create User Card */}
+        <div className="add-user-actions">
+          <button
+            className="add-user-card"
+            onClick={(e) => { createRipple(e); setShowCreateForm(true); }}
+          >
+            <img src={add_users_icon} alt="Add User" className="action-icon" />
+            <p className="add-user-card-text">+ New User</p>
+          </button>
+        </div>
 
         {/* Active Users */}
         <div className="users-section active-section">
@@ -193,13 +250,22 @@ const Users = () => {
                     <li>Last login: {user.last_login ? new Date(user.last_login).toLocaleDateString() : "Never"}</li>
                   </ul>
                   <div className="user-card-actions">
-                    <button className="user-view-btn" onClick={() => navigate(`/users/${user.user_id}`)}>
+                    <button
+                      className="user-view-btn"
+                      onClick={(e) => { createRipple(e); navigate(`/users/${user.user_id}`); }}
+                    >
                       View Details
                     </button>
-                    <button className="user-edit-btn" onClick={() => openEditModal(user)}>
+                    <button
+                      className="user-edit-btn"
+                      onClick={(e) => { createRipple(e); openEditModal(user); }}
+                    >
                       Edit
                     </button>
-                    <button className="user-deactivate-btn" onClick={() => handleDeactivate(user.user_id)}>
+                    <button
+                      className="user-deactivate-btn"
+                      onClick={(e) => { createRipple(e); handleDeactivate(user.user_id); }}
+                    >
                       Deactivate
                     </button>
                   </div>
@@ -229,10 +295,16 @@ const Users = () => {
                     <li>{user.email}</li>
                   </ul>
                   <div className="user-card-actions">
-                    <button className="user-view-btn" onClick={() => navigate(`/users/${user.user_id}`)}>
+                    <button
+                      className="user-view-btn"
+                      onClick={(e) => { createRipple(e); navigate(`/users/${user.user_id}`); }}
+                    >
                       View Details
                     </button>
-                    <button className="user-reactivate-btn" onClick={() => handleReactivate(user.user_id)}>
+                    <button
+                      className="user-reactivate-btn"
+                      onClick={(e) => { createRipple(e); handleReactivate(user.user_id); }}
+                    >
                       Reactivate
                     </button>
                   </div>
@@ -261,6 +333,35 @@ const Users = () => {
                 <input type="password" name="password" value={createForm.password} onChange={handleCreateChange} required />
               </div>
               <div className="modal-input-group">
+                <label>Role</label>
+                <div className="custom-role-dropdown">
+                  <div
+                    className={`role-dropdown-selected ${roleDropdownOpen ? "open" : ""}`}
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                  >
+                    {roles.find((r) => r.value === createForm.role)?.label || "Select a role"}
+                    <span className="role-dropdown-arrow">▾</span>
+                  </div>
+                  {roleDropdownOpen && (
+                    <div className="role-dropdown-list">
+                      {roles.map((r) => (
+                        <div
+                          key={r.value}
+                          className={`role-dropdown-item ${createForm.role === r.value ? "selected" : ""}`}
+                          onClick={() => {
+                            setCreateForm({ ...createForm, role: r.value });
+                            setRoleDropdownOpen(false);
+                          }}
+                        >
+                          <span className={`role-dot role-dot-${r.value}`}>●</span>
+                          {r.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="modal-input-group">
                 <label>Full Name</label>
                 <input type="text" name="full_name" value={createForm.full_name} onChange={handleCreateChange} required />
               </div>
@@ -272,15 +373,9 @@ const Users = () => {
                 <label>Phone (optional)</label>
                 <input type="text" name="phone" value={createForm.phone} onChange={handleCreateChange} />
               </div>
-              <div className="modal-input-group">
-                <label>Role</label>
-                <select name="role" value={createForm.role} onChange={handleCreateChange}>
-                  <option value="inbound">Inbound</option>
-                  <option value="outbound">Outbound</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button type="submit" className="modal-submit-btn">Create User</button>
+              <button type="submit" className="modal-submit-btn" onClick={createRipple}>
+                Create User
+              </button>
             </form>
           </div>
         </div>
@@ -318,20 +413,65 @@ const Users = () => {
               </div>
               <div className="modal-input-group">
                 <label>Role</label>
-                <select name="role" value={editForm.role} onChange={handleEditChange}>
-                  <option value="inbound">Inbound</option>
-                  <option value="outbound">Outbound</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <div className="custom-edit-role-dropdown">
+                  <div
+                    className={`role-dropdown-selected ${editRoleDropdownOpen ? "open" : ""}`}
+                    onClick={() => setEditRoleDropdownOpen(!editRoleDropdownOpen)}
+                  >
+                    {roles.find((r) => r.value === editForm.role)?.label || "Select a role"}
+                    <span className="role-dropdown-arrow">▾</span>
+                  </div>
+                  {editRoleDropdownOpen && (
+                    <div className="role-dropdown-list">
+                      {roles.map((r) => (
+                        <div
+                          key={r.value}
+                          className={`role-dropdown-item ${editForm.role === r.value ? "selected" : ""}`}
+                          onClick={() => {
+                            setEditForm({ ...editForm, role: r.value });
+                            setEditRoleDropdownOpen(false);
+                          }}
+                        >
+                          <span className={`role-dot role-dot-${r.value}`}>●</span>
+                          {r.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="modal-input-group">
                 <label>Status</label>
-                <select name="status" value={editForm.status} onChange={handleEditChange}>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
+                <div className="custom-edit-status-dropdown">
+                  <div
+                    className={`role-dropdown-selected ${editStatusDropdownOpen ? "open" : ""}`}
+                    onClick={() => setEditStatusDropdownOpen(!editStatusDropdownOpen)}
+                  >
+                    {statuses.find((s) => s.value === editForm.status)?.label || "Select a status"}
+                    <span className="role-dropdown-arrow">▾</span>
+                  </div>
+                  {editStatusDropdownOpen && (
+                    <div className="role-dropdown-list">
+                      {statuses.map((s) => (
+                        <div
+                          key={s.value}
+                          className={`role-dropdown-item ${editForm.status === s.value ? "selected" : ""}`}
+                          onClick={() => {
+                            setEditForm({ ...editForm, status: s.value });
+                            setEditStatusDropdownOpen(false);
+                          }}
+                        >
+                          <span className={`status-dot status-dot-${s.value}`}>●</span>
+                          {s.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <button type="submit" className="modal-submit-btn">Save Changes</button>
+              <button type="submit" className="modal-submit-btn" onClick={createRipple}>
+                Save Changes
+              </button>
             </form>
 
             <div className="modal-divider" />
@@ -345,7 +485,10 @@ const Users = () => {
                   onChange={(e) => setResetPassword(e.target.value)}
                 />
               </div>
-              <button className="modal-reset-btn" onClick={() => handleResetPassword(selectedUser.user_id)}>
+              <button
+                className="modal-reset-btn"
+                onClick={(e) => { createRipple(e); handleResetPassword(selectedUser.user_id); }}
+              >
                 Reset Password
               </button>
             </div>

@@ -79,7 +79,6 @@ const UserDetails = () => {
         <span className="user-details-back" onClick={() => navigate("/users")}>
           ← Back to Users
         </span>
-        <p className="user-details-title">Users</p>
       </div>
 
       <div className="user-details-content">

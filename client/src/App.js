@@ -17,6 +17,9 @@ import UserDetails from "./pages/users/UserDetails";
 import AdminLogs from "./pages/logs-pages/admin-logs";
 import InboundLogs from "./pages/logs-pages/inbound-logs";
 import OutboundLogs from "./pages/logs-pages/outbound-logs";
+import ReportsHome from "./pages/reports/reports-home";
+import ReportsGenerate from "./pages/reports/reports-generate";
+import ReportsView from "./pages/reports/reports-view";
 import "./App.css";
 
 function App() {
@@ -40,6 +43,9 @@ function App() {
           <Route path="/admin-logs" element={<ProtectedRoute allowedRoles={["admin"]}><AdminLogs /></ProtectedRoute>} />
           <Route path="/inbound-logs" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundLogs /></ProtectedRoute>} />
           <Route path="/outbound-logs" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundLogs /></ProtectedRoute>} />
+          <Route path="/reports" element={<ProtectedRoute role="admin"><ReportsHome /></ProtectedRoute>} />
+          <Route path="/reports/generate" element={<ProtectedRoute role="admin"><ReportsGenerate /></ProtectedRoute>} />
+          <Route path="/reports/view" element={<ProtectedRoute role="admin"><ReportsView /></ProtectedRoute>} />
 
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />

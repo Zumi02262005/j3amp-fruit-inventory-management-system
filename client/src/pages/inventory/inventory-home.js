@@ -1,8 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./inventory-home.css";
+import addSKU from "../../assets/icons/generate_report_icon.svg";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const ExpiredCard = ({ item, navigate }) => {
   return (
@@ -37,7 +53,6 @@ const InventoryHome = () => {
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
 
-  // Add SKU modal state
   const [showAddSku, setShowAddSku] = useState(false);
   const [skuForm, setSkuForm] = useState({
     sku: "",
@@ -49,6 +64,7 @@ const InventoryHome = () => {
   const [skuStatus, setSkuStatus] = useState({ type: "", msg: "" });
 
   const navigate = useNavigate();
+  const createRipple = useRipple();
 
   const fetchAll = async () => {
     try {
@@ -79,6 +95,12 @@ const InventoryHome = () => {
     fetchAll();
   }, []);
 
+  // Lock body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = showAddSku ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showAddSku]);
+
   const handleSkuFormChange = (e) => {
     setSkuForm({ ...skuForm, [e.target.name]: e.target.value });
   };
@@ -102,13 +124,9 @@ const InventoryHome = () => {
 
   return (
     <div className="inventory-home-container page-with-navbar">
+
       <div className="inventory-home-header">
         <p className="inventory-home-label">Inventory</p>
-        {user?.role === "admin" && (
-          <button className="add-sku-btn" onClick={() => setShowAddSku(true)}>
-            + Add SKU
-          </button>
-        )}
       </div>
 
       <div className="inventory-content">
@@ -134,6 +152,19 @@ const InventoryHome = () => {
             </div>
           </div>
         </div>
+
+        {/* Add SKU — admin only */}
+        {user?.role === "admin" && (
+          <div className="add-sku-actions">
+            <button
+              className="add-sku-card"
+              onClick={(e) => { createRipple(e); setShowAddSku(true); }}
+            >
+              <img src={addSKU} alt="Add SKU" className="action-icon" />
+              <p className="add-sku-card-text">Add SKU</p>
+            </button>
+          </div>
+        )}
 
         {/* Low Stock */}
         <div className="low-stock">
@@ -261,7 +292,9 @@ const InventoryHome = () => {
                 <label>Reorder Point (kg)</label>
                 <input type="number" name="reorder_point" value={skuForm.reorder_point} onChange={handleSkuFormChange} step="0.01" min="0" required />
               </div>
-              <button type="submit" className="inv-modal-submit-btn">Create SKU</button>
+              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>
+                Create SKU
+              </button>
             </form>
           </div>
         </div>

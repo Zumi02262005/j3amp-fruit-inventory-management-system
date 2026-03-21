@@ -12,6 +12,7 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const logRoutes = require("./routes/logRoutes");
 const userRoutes = require("./routes/userRoutes");
 const alertRoutes = require("./routes/alertRoutes");
+const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
 
@@ -75,6 +76,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/alerts", alertRoutes);
+app.use("/api/reports", reportRoutes);
 
 // ---- Error Handlers ----
 app.use((req, res) => {

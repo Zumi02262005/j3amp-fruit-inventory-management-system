@@ -102,4 +102,13 @@ export const alertAPI = {
   clearAllAlerts: () => api.patch("/alerts/clear-all"),
 };
 
+export const reportsAPI = {
+  getAllReports: () => api.get("/reports"),
+  getReport: (reportId) => api.get(`/reports/${reportId}`),
+  getReportTransactions: (reportId) => api.get(`/reports/${reportId}/transactions`),
+  generateReport: (data) => api.post("/reports/generate", data),
+  updateReport: (reportId, data) => api.put(`/reports/${reportId}`, data),
+  deleteReport: (reportId) => api.delete(`/reports/${reportId}`),
+};
+
 export default api;

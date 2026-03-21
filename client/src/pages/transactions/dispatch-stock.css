@@ -9,9 +9,7 @@
 .dispatch-stock-label {
   padding: clamp(1.5rem, 8vw, 3rem) clamp(1rem, 5vw, 2rem) 0;
   color: #000;
-  font:
-    700 clamp(1.2rem, 5vw, 1.8rem)/1.2 Inter,
-    sans-serif;
+  font: 700 clamp(1.2rem, 5vw, 1.8rem)/1.2 Inter, sans-serif;
 }
 
 .form-wrapper {
@@ -61,9 +59,13 @@
   outline: none;
   border: 2px solid #ff6200;
   box-shadow: 0 0 8px rgba(255, 98, 0, 0.2);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* ── Dispatch button animation ── */
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.5; }
+  to   { transform: scale(4); opacity: 0; }
 }
 
 .dispatch-button {
@@ -73,23 +75,44 @@
   background: #ff6200;
   color: #fff;
   border: none;
-  font:
-    600 1rem Inter,
-    sans-serif;
+  font: 600 1rem Inter, sans-serif;
   cursor: pointer;
   margin: 1rem auto;
-  transition: transform 0.2s;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.16s ease,
+              background 0.2s ease;
+}
+
+.dispatch-button .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  pointer-events: none;
+  animation: ripple 0.5s linear forwards;
+}
+
+.dispatch-button:hover {
+  background: #e55a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 98, 0, 0.4);
 }
 
 .dispatch-button:active {
   transform: scale(0.96);
+  box-shadow: none;
 }
 
 .form-input-group input:not(:placeholder-shown)::placeholder {
   opacity: 0;
 }
 
-/* SKU Dropdown */
+/* ── SKU Dropdown ── */
 .sku-select {
   width: 100%;
   padding: 10px;
@@ -105,26 +128,79 @@
   border-color: #4a90e2;
 }
 
-/* Color coding for dropdown options */
-option.sku-low-stock {
-  background-color: #fff8e1;
-  color: #e65100;
+option.sku-low-stock  { background-color: #fff8e1; color: #e65100; font-weight: 600; }
+option.sku-expiring   { background-color: #fce4ec; color: #c62828; font-weight: 600; }
+option.sku-critical   { background-color: #f3e5f5; color: #6a1b9a; font-weight: 700; }
+
+/* ── Custom dropdown ── */
+.custom-sku-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.sku-dropdown-selected {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
   font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-option.sku-expiring {
-  background-color: #fce4ec;
-  color: #c62828;
+.sku-dropdown-selected.open {
+  border: 2px solid #ff6200;
+  box-shadow: 0 0 8px rgba(255, 98, 0, 0.2);
+}
+
+.sku-dropdown-selected.disabled {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.sku-dropdown-arrow {
+  font-size: 12px;
+  color: #999;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.sku-dropdown-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.sku-dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
   font-weight: 600;
+  transition: background 0.15s ease;
 }
 
-option.sku-critical {
-  background-color: #f3e5f5;
-  color: #6a1b9a;
-  font-weight: 700;
-}
+.sku-dropdown-item:first-child { border-radius: 12px 12px 0 0; }
+.sku-dropdown-item:last-child  { border-radius: 0 0 12px 12px; }
+.sku-dropdown-item:hover       { background: #f5f5f5; }
 
-/* Legend below the dropdown */
+/* ── Legend ── */
 .sku-legend {
   display: flex;
   gap: 12px;
@@ -138,14 +214,19 @@ option.sku-critical {
   gap: 4px;
 }
 
-.legend-low-stock {
-  color: #e65100;
+.legend-low-stock { color: #e65100; }
+.legend-expiring  { color: #c62828; }
+.legend-critical  { color: #6a1b9a; }
+
+/* ── Status messages ── */
+.status-message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: Inter, sans-serif;
 }
 
-.legend-expiring {
-  color: #c62828;
-}
-
-.legend-critical {
-  color: #6a1b9a;
-}
+.status-message.success { background: #e8f5e9; color: #2e7d32; }
+.status-message.error   { background: #ffebee; color: #c62828; }
+.status-message.loading { background: #fff8e1; color: #f57f17; }

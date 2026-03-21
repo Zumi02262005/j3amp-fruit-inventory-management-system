@@ -23,19 +23,67 @@ body {
   margin: 0;
 }
 
-.create-user-btn {
-  background: #ff6200;
-  color: #fff;
-  border: none;
-  border-radius: 20px;
-  padding: 8px 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
+/* ── Button animations ── */
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.5; }
+  to   { transform: scale(4); opacity: 0; }
 }
 
-.create-user-btn:hover {
-  background: #e55a00;
+/* ── Add User Card ── */
+.add-user-actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.add-user-card {
+  font-family: Inter;
+  width: 100%;
+  height: 10rem;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.18s ease,
+              background 0.2s ease;
+}
+
+.add-user-card .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 98, 0, 0.2);
+  width: 60px;
+  height: 60px;
+  margin-top: -30px;
+  margin-left: -30px;
+  pointer-events: none;
+  animation: ripple 0.55s linear forwards;
+}
+
+.add-user-card:hover {
+  background: #f0f0f0;
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+.add-user-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.add-user-card-text {
+  color: #000;
+  text-align: center;
+  font-family: Inter;
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0;
+  pointer-events: none;
 }
 
 /* ── Status ── */
@@ -48,7 +96,7 @@ body {
 }
 
 .users-status.success { background: #e8f5e9; color: #2e7d32; }
-.users-status.error { background: #ffebee; color: #c62828; }
+.users-status.error   { background: #ffebee; color: #c62828; }
 .users-status.loading { background: #fff8e1; color: #f57f17; }
 
 /* ── Content ── */
@@ -81,6 +129,14 @@ body {
   background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
 }
 
+.inactive-section span {
+  background-color: #757575;
+}
+
+.inactive-section button {
+  background-color: #757575;
+}
+
 .users-section-label {
   color: white;
   font-size: 1.5rem;
@@ -101,10 +157,6 @@ body {
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.inactive-card {
-  opacity: 0.75;
 }
 
 .user-card-top {
@@ -136,9 +188,9 @@ body {
   color: #fff;
 }
 
-.role-admin { background: #7b1fa2; }
-.role-inbound { background: #1565c0; }
-.role-outbound { background: #2e7d32; }
+.role-admin    { background: #ff6200; }
+.role-inbound  { background: #299d8f; }
+.role-outbound { background: #ffbf00; }
 
 .user-details {
   margin: 0 0 0.75rem 0;
@@ -154,27 +206,77 @@ body {
   justify-content: flex-end;
 }
 
+/* ── Card action buttons ── */
+.user-view-btn,
 .user-edit-btn,
 .user-deactivate-btn,
 .user-reactivate-btn {
   border: none;
-  border-radius: 8px;
+  border-radius: 15px;
   padding: 6px 14px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.16s ease,
+              background 0.2s ease;
 }
 
-.user-edit-btn { background: #fff3e0; color: #ff6200; }
-.user-edit-btn:hover { background: #ffe0b2; }
+.user-view-btn,
+.user-edit-btn,
+.user-deactivate-btn,
+.user-reactivate-btn {
+  background: #ff6200;
+  color: #fff;
+}
 
-.user-deactivate-btn { background: #ffebee; color: #c62828; }
-.user-deactivate-btn:hover { background: #ffcdd2; }
+.user-view-btn .ripple-circle,
+.user-edit-btn .ripple-circle,
+.user-deactivate-btn .ripple-circle,
+.user-reactivate-btn .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  pointer-events: none;
+  animation: ripple 0.5s linear forwards;
+}
 
-.user-reactivate-btn { background: #e8f5e9; color: #2e7d32; }
-.user-reactivate-btn:hover { background: #c8e6c9; }
+.user-view-btn:hover,
+.user-edit-btn:hover,
+.user-deactivate-btn:hover,
+.user-reactivate-btn:hover {
+  background: #e75b03;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 98, 0, 0.35);
+}
 
-/* ── Modal ── */
+.user-view-btn:active,
+.user-edit-btn:active,
+.user-deactivate-btn:active,
+.user-reactivate-btn:active {
+  transform: scale(0.95);
+  box-shadow: none;
+}
+
+/* ── Modal animations ── */
+@keyframes modalSpring {
+  0%   { opacity: 0; transform: scale(0.82) translateY(24px); }
+  60%  { transform: scale(1.03) translateY(-4px); }
+  80%  { transform: scale(0.98) translateY(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -185,6 +287,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  animation: overlayFadeIn 0.2s ease both;
 }
 
 .modal {
@@ -195,6 +298,7 @@ body {
   max-height: calc(100vh - 130px);
   overflow-y: auto;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  animation: modalSpring 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .modal-header {
@@ -209,7 +313,7 @@ body {
   margin: 0;
   font-size: 1rem;
   font-weight: 700;
-  color: #333;
+  color: #e75b03;
 }
 
 .modal-close {
@@ -217,10 +321,25 @@ body {
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  color: #999;
+  color: #000;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
 
-.modal-close:hover { color: #333; }
+.modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+  transform: rotate(90deg) scale(1.1);
+}
+
+.modal-close:active {
+  transform: rotate(90deg) scale(0.9);
+}
 
 .modal-form {
   padding: 1.25rem 1.5rem;
@@ -238,7 +357,7 @@ body {
 .modal-input-group label {
   font-size: 0.82rem;
   font-weight: 600;
-  color: #555;
+  color: #000;
 }
 
 .modal-input-group input,
@@ -255,18 +374,65 @@ body {
   border-color: #ff6200;
 }
 
-.modal-submit-btn {
-  background: #ff6200;
-  color: #fff;
+/* ── Modal buttons ── */
+.modal-submit-btn,
+.modal-reset-btn {
   border: none;
   border-radius: 10px;
   padding: 11px;
   font-size: 0.92rem;
   font-weight: 700;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.16s ease,
+              background 0.2s ease;
 }
 
-.modal-submit-btn:hover { background: #e55a00; }
+.modal-submit-btn {
+  background: #ff6200;
+  color: #fff;
+}
+
+.modal-submit-btn:hover {
+  background: #e55a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 98, 0, 0.4);
+}
+
+.modal-submit-btn:active {
+  transform: scale(0.96);
+  box-shadow: none;
+}
+
+.modal-reset-btn {
+  background: #ff6200;
+  color: #fff;
+}
+
+.modal-reset-btn:hover {
+  background: #e55a00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 98, 0, 0.4);
+}
+
+.modal-reset-btn:active {
+  transform: scale(0.96);
+}
+
+.modal-submit-btn .ripple-circle,
+.modal-reset-btn .ripple-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  pointer-events: none;
+  animation: ripple 0.5s linear forwards;
+}
 
 .modal-divider {
   height: 1px;
@@ -274,34 +440,7 @@ body {
   margin: 0 1.5rem;
 }
 
-.modal-reset-btn {
-  background: #ffebee;
-  color: #c62828;
-  border: none;
-  border-radius: 10px;
-  padding: 11px;
-  font-size: 0.92rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.modal-reset-btn:hover { background: #ffcdd2; }
-
-.loader {
-  text-align: center;
-  margin-top: 3rem;
-  color: #999;
-}
-
-.error-bar {
-  margin: 1rem 2rem;
-  padding: 10px 14px;
-  background: #ffebee;
-  color: #c62828;
-  border-radius: 8px;
-  font-weight: 600;
-}
-
+/* ── Search ── */
 .users-search-wrapper {
   margin: 1rem clamp(1rem, 4vw, 2rem) 0;
 }
@@ -316,23 +455,114 @@ body {
   box-sizing: border-box;
   background: #fff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .users-search-input:focus {
   border-color: #ff6200;
+  box-shadow: 0 2px 10px rgba(255, 98, 0, 0.15);
 }
 
-.user-view-btn {
-  border: none;
+/* ── Custom Role Dropdown ── */
+.custom-role-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: Inter, sans-serif;
+}
+
+.role-dropdown-selected {
+  padding: 9px 12px;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  background: #fff;
   cursor: pointer;
-  background: #e8f5e9;
-  color: #2e7d32;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.user-view-btn:hover {
-  background: #c8e6c9;
+.role-dropdown-selected.open,
+.role-dropdown-selected:hover {
+  border-color: #ff6200;
+  box-shadow: 0 0 0 2px rgba(255, 98, 0, 0.12);
+}
+
+.role-dropdown-arrow {
+  font-size: 0.75rem;
+  color: #999;
+  transition: transform 0.2s ease;
+}
+
+.role-dropdown-selected.open .role-dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.role-dropdown-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.role-dropdown-item {
+  padding: 10px 14px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.15s ease;
+}
+
+.role-dropdown-item:hover {
+  background: #fff4ee;
+}
+
+.role-dropdown-item.selected {
+  background: #fff4ee;
+  font-weight: 600;
+}
+
+.role-dot {
+  font-size: 0.65rem;
+}
+
+.role-dot-admin    { color: #ff6200; }
+.role-dot-inbound  { color: #299d8f; }
+.role-dot-outbound { color: #ffbf00; }
+
+.status-dot-active   { color: #2e7d32; }
+.status-dot-inactive { color: #9e9e9e; }
+
+/* Edit modal dropdowns reuse the same classes via different wrapper names */
+.custom-edit-role-dropdown,
+.custom-edit-status-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: Inter, sans-serif;
+}
+
+/* ── Misc ── */
+.loader {
+  text-align: center;
+  margin-top: 3rem;
+  color: #999;
+}
+
+.error-bar {
+  margin: 2rem 2rem;
+  padding: 10px 14px;
+  background: #ff6200;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
 }

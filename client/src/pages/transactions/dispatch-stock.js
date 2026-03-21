@@ -1,6 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { inventoryAPI, transactionAPI } from "../../services/api";
 import "./dispatch-stock.css";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const DispatchStock = () => {
   const [formData, setFormData] = useState({
@@ -17,6 +32,8 @@ const DispatchStock = () => {
   const [status, setStatus] = useState({ type: "", msg: "" });
   const [skuDropdownOpen, setSkuDropdownOpen] = useState(false);
   const [batchDropdownOpen, setBatchDropdownOpen] = useState(false);
+
+  const createRipple = useRipple();
 
   useEffect(() => {
     const fetchSkus = async () => {
@@ -53,7 +70,6 @@ const DispatchStock = () => {
     fetchBatches();
   }, [formData.sku]);
 
-  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (!e.target.closest(".custom-sku-dropdown")) {
@@ -139,14 +155,7 @@ const DispatchStock = () => {
               </div>
             ) : (
               <div className="custom-sku-dropdown">
-                <input
-                  type="text"
-                  name="sku"
-                  value={formData.sku}
-                  required
-                  readOnly
-                  style={{ display: "none" }}
-                />
+                <input type="text" name="sku" value={formData.sku} required readOnly style={{ display: "none" }} />
                 <div
                   className={`sku-dropdown-selected ${skuDropdownOpen ? "open" : ""}`}
                   onClick={() => setSkuDropdownOpen(!skuDropdownOpen)}
@@ -190,24 +199,13 @@ const DispatchStock = () => {
               </div>
             ) : (
               <div className="custom-sku-dropdown">
-                <input
-                  type="text"
-                  name="batch_id"
-                  value={formData.batch_id}
-                  required
-                  readOnly
-                  style={{ display: "none" }}
-                />
+                <input type="text" name="batch_id" value={formData.batch_id} required readOnly style={{ display: "none" }} />
                 <div
                   className={`sku-dropdown-selected ${!formData.sku ? "disabled" : ""} ${batchDropdownOpen ? "open" : ""}`}
                   onClick={() => { if (formData.sku) setBatchDropdownOpen(!batchDropdownOpen); }}
                   style={{ color: selectedBatch ? getBatchColor(selectedBatch) : "#999" }}
                 >
-                  {!formData.sku
-                    ? "Select a SKU first"
-                    : selectedBatch
-                    ? getBatchLabel(selectedBatch)
-                    : "Select a batch"}
+                  {!formData.sku ? "Select a SKU first" : selectedBatch ? getBatchLabel(selectedBatch) : "Select a batch"}
                   <span className="sku-dropdown-arrow">▾</span>
                 </div>
                 {batchDropdownOpen && (
@@ -258,7 +256,7 @@ const DispatchStock = () => {
             />
           </div>
 
-          <button type="submit" className="dispatch-button">
+          <button type="submit" className="dispatch-button" onClick={createRipple}>
             Dispatch
           </button>
         </form>

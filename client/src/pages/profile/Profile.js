@@ -1,9 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { userAPI } from "../../services/api";
 import "./Profile.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -11,7 +26,7 @@ const Profile = () => {
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("profile"); // "profile" | "password"
+  const [activeTab, setActiveTab] = useState("profile");
 
   const [editForm, setEditForm] = useState({
     full_name: "",
@@ -28,7 +43,8 @@ const Profile = () => {
   const [editStatus, setEditStatus] = useState({ type: "", msg: "" });
   const [passwordStatus, setPasswordStatus] = useState({ type: "", msg: "" });
 
-  // Fetch own profile on mount
+  const createRipple = useRipple();
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -123,7 +139,10 @@ const Profile = () => {
           ← Back
         </button>
         <p className="profile-title">Profile</p>
-        <button className="profile-logout-btn" onClick={handleLogout}>
+        <button
+          className="profile-logout-btn"
+          onClick={(e) => { createRipple(e); handleLogout(); }}
+        >
           Logout
         </button>
       </div>
@@ -147,13 +166,13 @@ const Profile = () => {
         <div className="profile-tabs">
           <button
             className={`profile-tab ${activeTab === "profile" ? "active" : ""}`}
-            onClick={() => setActiveTab("profile")}
+            onClick={(e) => { createRipple(e); setActiveTab("profile"); }}
           >
             Edit Profile
           </button>
           <button
             className={`profile-tab ${activeTab === "password" ? "active" : ""}`}
-            onClick={() => setActiveTab("password")}
+            onClick={(e) => { createRipple(e); setActiveTab("password"); }}
           >
             Change Password
           </button>
@@ -197,7 +216,7 @@ const Profile = () => {
                 placeholder="Optional"
               />
             </div>
-            <button type="submit" className="profile-save-btn">
+            <button type="submit" className="profile-save-btn" onClick={createRipple}>
               Save Changes
             </button>
           </form>
@@ -241,7 +260,7 @@ const Profile = () => {
                 required
               />
             </div>
-            <button type="submit" className="profile-save-btn">
+            <button type="submit" className="profile-save-btn" onClick={createRipple}>
               Change Password
             </button>
           </form>

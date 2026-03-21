@@ -1,8 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./inventory-item.css";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const InventoryItem = () => {
   const { sku } = useParams();
@@ -11,7 +26,6 @@ const InventoryItem = () => {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Edit info modal
   const [showEdit, setShowEdit] = useState(false);
   const [editForm, setEditForm] = useState({
     product_name: "",
@@ -21,7 +35,6 @@ const InventoryItem = () => {
   });
   const [editStatus, setEditStatus] = useState({ type: "", msg: "" });
 
-  // Edit batch modal
   const [showEditBatch, setShowEditBatch] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [batchForm, setBatchForm] = useState({
@@ -31,9 +44,10 @@ const InventoryItem = () => {
   });
   const [batchStatus, setBatchStatus] = useState({ type: "", msg: "" });
 
-  // Deactivate confirmation modal
   const [showDeactivate, setShowDeactivate] = useState(false);
   const [deactivateStatus, setDeactivateStatus] = useState({ type: "", msg: "" });
+
+  const createRipple = useRipple();
 
   const fetchBatchData = async () => {
     try {
@@ -50,6 +64,15 @@ const InventoryItem = () => {
   useEffect(() => {
     fetchBatchData();
   }, [sku]);
+
+  // Lock body scroll when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = showEdit || showEditBatch || showDeactivate;
+    document.body.style.overflow = isAnyModalOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showEdit, showEditBatch, showDeactivate]);
 
   const openEditModal = () => {
     if (!productInfo) return;
@@ -82,7 +105,6 @@ const InventoryItem = () => {
 
   const openEditBatchModal = (batch) => {
     setSelectedBatch(batch);
-    // Format date as YYYY-MM-DD for the date input
     const expDate = new Date(batch.expiration_date).toISOString().split("T")[0];
     setBatchForm({
       remaining_quantity: parseFloat(batch.remaining_quantity).toFixed(2),
@@ -121,7 +143,11 @@ const InventoryItem = () => {
     }
   };
 
-  if (loading) return <div className="loader">Loading item details...</div>;
+  if (loading) return (
+    <div className="inventory-item-container page-with-navbar">
+      <div className="loader">Loading item details...</div>
+    </div>
+  );
 
   const productInfo = batches.length > 0 ? batches[0] : null;
   const totalStock = batches.reduce(
@@ -130,7 +156,11 @@ const InventoryItem = () => {
   );
 
   if (batches.length === 0)
-    return <div className="error-bar">No active batches found</div>;
+    return (
+      <div className="inventory-item-container page-with-navbar">
+        <div className="error-bar">No active batches found</div>
+      </div>
+    );
 
   return (
     <div className="inventory-item-container page-with-navbar">
@@ -150,17 +180,25 @@ const InventoryItem = () => {
             <li><strong>Category: </strong>{productInfo?.category}</li>
             <li><strong>Supplier: </strong>{productInfo?.supplier}</li>
           </ul>
-          {user?.role === "admin" && (
-            <div className="admin-item-actions">
-              <button className="edit-item-btn" onClick={openEditModal}>
-                Edit Info
-              </button>
-              <button className="deactivate-sku-btn" onClick={() => setShowDeactivate(true)}>
-                Deactivate SKU
-              </button>
-            </div>
-          )}
         </div>
+
+        {/* Admin Actions */}
+        {user?.role === "admin" && (
+          <div className="admin-item-actions">
+            <button
+              className="admin-action-card"
+              onClick={(e) => { createRipple(e); openEditModal(); }}
+            >
+              <p className="admin-action-card-text"><strong>Edit Info</strong></p>
+            </button>
+            <button
+              className="admin-action-card deactivate-card"
+              onClick={(e) => { createRipple(e); setShowDeactivate(true); }}
+            >
+              <p className="admin-action-card-text"><strong>Deactivate SKU</strong></p>
+            </button>
+          </div>
+        )}
 
         {/* Stock Summary */}
         <div className="stock-details-container">
@@ -190,9 +228,11 @@ const InventoryItem = () => {
                   <li><strong>Received by: </strong>{batch.received_by}</li>
                 </ul>
                 {user?.role === "admin" && (
-                  <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>
-                    Edit Batch
-                  </button>
+                  <div className="batch-card-actions">
+                    <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>
+                      Edit Batch →
+                    </button>
+                  </div>
                 )}
               </div>
             ))}
@@ -228,7 +268,9 @@ const InventoryItem = () => {
                 <label>Reorder Point (kg)</label>
                 <input type="number" name="reorder_point" value={editForm.reorder_point} onChange={handleEditChange} step="0.01" min="0" required />
               </div>
-              <button type="submit" className="inv-modal-submit-btn">Save Changes</button>
+              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>
+                Save Changes
+              </button>
             </form>
           </div>
         </div>
@@ -278,7 +320,9 @@ const InventoryItem = () => {
                   required
                 />
               </div>
-              <button type="submit" className="inv-modal-submit-btn">Save Changes</button>
+              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>
+                Save Changes
+              </button>
             </form>
           </div>
         </div>
@@ -296,14 +340,14 @@ const InventoryItem = () => {
               <div className={`inv-modal-status ${deactivateStatus.type}`}>{deactivateStatus.msg}</div>
             )}
             <div className="inv-modal-form">
-              <p style={{ color: "#555", fontSize: "0.9rem" }}>
+              <p style={{ color: "#000", fontSize: "0.9rem" }}>
                 Are you sure you want to deactivate <strong>{productInfo?.product_name}</strong> ({sku})?
                 It will no longer appear in the inventory.
               </p>
-              <button className="inv-modal-deactivate-btn" onClick={handleDeactivate}>
+              <button className="inv-modal-deactivate-btn" onClick={(e) => { createRipple(e); handleDeactivate(); }}>
                 Yes, Deactivate
               </button>
-              <button className="inv-modal-cancel-btn" onClick={() => setShowDeactivate(false)}>
+              <button className="inv-modal-cancel-btn" onClick={(e) => { createRipple(e); setShowDeactivate(false); }}>
                 Cancel
               </button>
             </div>

@@ -1,6 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { inventoryAPI, transactionAPI } from "../../services/api";
 import "./receive-stock.css";
+
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
 
 const ReceiveStock = () => {
   const [formData, setFormData] = useState({
@@ -15,7 +30,8 @@ const ReceiveStock = () => {
   const [status, setStatus] = useState({ type: "", msg: "" });
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Load SKU dropdown on mount
+  const createRipple = useRipple();
+
   useEffect(() => {
     const fetchSkus = async () => {
       try {
@@ -41,14 +57,12 @@ const ReceiveStock = () => {
 
   const getSkuColor = (item) => {
     if (item.is_low_stock && item.is_expiring_soon) return "#a855f7";
-    if (item.is_expiring_soon) return "#ef4444";                       
-    if (item.is_low_stock) return "#f97316";                           
+    if (item.is_expiring_soon) return "#ef4444";
+    if (item.is_low_stock) return "#f97316";
     return "inherit";
   };
 
-  const getSkuLabel = (item) => {
-    return `${item.sku} — ${item.product_name}`;
-  };
+  const getSkuLabel = (item) => `${item.sku} — ${item.product_name}`;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -57,21 +71,14 @@ const ReceiveStock = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus({ type: "loading", msg: "Updating inventory..." });
-
     try {
       const response = await transactionAPI.receiveStock(formData);
-
       if (response.data.success) {
         setStatus({
           type: "success",
           msg: `Successfully received ${formData.quantity}kg for ${formData.sku}`,
         });
-        setFormData({
-          sku: "",
-          quantity: "",
-          expiration_date: "",
-          supplier_name: "",
-        });
+        setFormData({ sku: "", quantity: "", expiration_date: "", supplier_name: "" });
       }
     } catch (err) {
       setStatus({
@@ -102,7 +109,6 @@ const ReceiveStock = () => {
               </div>
             ) : (
               <div className="custom-sku-dropdown">
-                {/* Hidden native input so form required validation still works */}
                 <input
                   type="text"
                   name="sku"
@@ -111,7 +117,6 @@ const ReceiveStock = () => {
                   readOnly
                   style={{ display: "none" }}
                 />
-
                 <div
                   className={`sku-dropdown-selected ${dropdownOpen ? "open" : ""}`}
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -120,7 +125,6 @@ const ReceiveStock = () => {
                   {selectedItem ? getSkuLabel(selectedItem) : "Select a SKU"}
                   <span className="sku-dropdown-arrow">▾</span>
                 </div>
-
                 {dropdownOpen && (
                   <div className="sku-dropdown-list">
                     {skuList.map((item) => (
@@ -140,7 +144,6 @@ const ReceiveStock = () => {
                 )}
               </div>
             )}
-
             <div className="sku-legend">
               <span className="legend-item legend-low-stock">● Low Stock</span>
               <span className="legend-item legend-expiring">● Expiring Soon</span>
@@ -183,7 +186,7 @@ const ReceiveStock = () => {
             />
           </div>
 
-          <button type="submit" className="receive-button">
+          <button type="submit" className="receive-button" onClick={createRipple}>
             Receive
           </button>
         </form>

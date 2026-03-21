@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { logsAPI } from "../../services/api";
@@ -7,12 +7,29 @@ import "./inbound-dashboard.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
 import receive_icon from "../../assets/icons/receive_icon.svg";
 
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
+
 const InboundDashboard = () => {
   const navigate = useNavigate();
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);
   const [lowStockCount, setLowStockCount] = useState(null);
   const [recentReceipts, setRecentReceipts] = useState([]);
+
+  const createRipple = useRipple();
 
   useEffect(() => {
     const fetchTotalStock = async () => {
@@ -98,7 +115,10 @@ const InboundDashboard = () => {
         </div>
 
         <div id="inbound-quick-actions">
-          <button id="receive-stock-button" onClick={handleReceiveStock}>
+          <button
+            id="receive-stock-button"
+            onClick={(e) => { createRipple(e); handleReceiveStock(); }}
+          >
             <img src={receive_icon} alt="Receive Stock" className="receive-icon" />
             <p id="receive-icon-text">Receive Stock</p>
           </button>
@@ -108,7 +128,7 @@ const InboundDashboard = () => {
           <p>Recent Receipts</p>
           <ul className="recent-receipts-list">
             {recentReceipts.length === 0 ? (
-              <p><strong>No recent receipts</strong></p>
+              <p style={{ color: "#000", fontSize: "0.9rem" }}>No recent receipts</p>
             ) : (
               recentReceipts.map((receipt) => (
                 <li key={receipt.log_id} className="recent-receipts-content">

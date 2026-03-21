@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { logsAPI } from "../../services/api";
@@ -7,12 +7,29 @@ import "./outbound-dashboard.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
 import dispatch_icon from "../../assets/icons/dispatch_icon.svg";
 
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
+
 const OutboundDashboard = () => {
   const navigate = useNavigate();
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
   const [recentDispatches, setRecentDispatches] = useState([]);
+
+  const createRipple = useRipple();
 
   useEffect(() => {
     const fetchTotalStock = async () => {
@@ -94,7 +111,10 @@ const OutboundDashboard = () => {
         </div>
 
         <div id="outbound-quick-actions">
-          <button id="dispatch-stock-button" onClick={handleDispatchStock}>
+          <button
+            id="dispatch-stock-button"
+            onClick={(e) => { createRipple(e); handleDispatchStock(); }}
+          >
             <img src={dispatch_icon} alt="Dispatch Stock" className="dispatch-icon" />
             <p id="dispatch-icon-text">Dispatch Stock</p>
           </button>
@@ -104,7 +124,7 @@ const OutboundDashboard = () => {
           <p>Recent Dispatches</p>
           <ul className="recent-dispatches-list">
             {recentDispatches.length === 0 ? (
-              <p><strong>No recent dispatches</strong></p>
+              <p style={{ color: "#000", fontSize: "0.9rem" }}>No recent dispatches</p>
             ) : (
               recentDispatches.map((dispatch) => (
                 <li key={dispatch.log_id} className="recent-dispatches-content">

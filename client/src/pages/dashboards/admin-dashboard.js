@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
@@ -11,6 +11,21 @@ import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
 import backup_data_icon from "../../assets/icons/backup_icon.svg";
 import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
 
+/* ── Ripple helper ── */
+const useRipple = () => {
+  const createRipple = useCallback((e) => {
+    const btn = e.currentTarget;
+    const circle = document.createElement("span");
+    const rect = btn.getBoundingClientRect();
+    circle.className = "ripple-circle";
+    circle.style.left = `${e.clientX - rect.left}px`;
+    circle.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(circle);
+    circle.addEventListener("animationend", () => circle.remove());
+  }, []);
+  return createRipple;
+};
+
 const AdminDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -18,6 +33,8 @@ const AdminDashboard = () => {
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
+
+  const createRipple = useRipple();
 
   useEffect(() => {
     const fetchTotalStock = async () => {
@@ -123,19 +140,31 @@ const AdminDashboard = () => {
         </div>
 
         <div id="admin-quick-actions">
-          <button id="generate-report-card">
+          <button
+              id="generate-report-card"
+              onClick={(e) => { createRipple(e); navigate("/reports"); }}
+            >
             <img src={generate_report_icon} alt="Generate Report" className="action-icon" />
             <p id="generate-report-text">Generate report</p>
           </button>
-          <button id="manage-users-card" onClick={() => navigate("/users")}>
+          <button
+            id="manage-users-card"
+            onClick={(e) => { createRipple(e); navigate("/users"); }}
+          >
             <img src={manage_users_icon} alt="Manage Users" className="action-icon" />
             <p id="manage-users-text">Manage users</p>
           </button>
-          <button id="backup-data-card">
-            <img src={backup_data_icon} alt="Backup Data" className="action-icon" />
-            <p id="backup-data-text">Backup data</p>
+          <button
+            id="logs-card"
+            onClick={(e) => { createRipple(e); navigate("/admin-logs"); }}
+          >
+            <img src={backup_data_icon} alt="Logs" className="action-icon" />
+            <p id="logs-text">Logs</p>
           </button>
-          <button id="view-inventory-card" onClick={handleViewInventory}>
+          <button
+            id="view-inventory-card"
+            onClick={(e) => { createRipple(e); handleViewInventory(); }}
+          >
             <img src={view_inventory_icon} alt="View Inventory" className="action-icon" />
             <p id="view-inventory-text">View inventory</p>
           </button>

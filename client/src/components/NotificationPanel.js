@@ -17,6 +17,19 @@ const NotificationPanel = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Lock / unlock body scroll when panel opens or closes
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Close panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -50,8 +63,9 @@ const NotificationPanel = () => {
   };
 
   const handleBellClick = () => {
-    setIsOpen((prev) => !prev);
-    if (!isOpen) fetchAlerts();
+    const opening = !isOpen;
+    setIsOpen(opening);
+    if (opening) fetchAlerts();
   };
 
   const handleClearAlert = async (alertId) => {
@@ -67,24 +81,27 @@ const NotificationPanel = () => {
   const getPriorityClass = (priority) => {
     switch (priority) {
       case "critical": return "alert-critical";
-      case "high": return "alert-high";
-      case "medium": return "alert-medium";
-      default: return "alert-low";
+      case "high":     return "alert-high";
+      case "medium":   return "alert-medium";
+      default:         return "alert-low";
     }
   };
 
-  const getAlertIcon = (type) => {
-    return "!"
-    };
+  const getAlertIcon = () => "!";
 
   return (
     <div className="notification-wrapper" ref={panelRef}>
       {/* Bell button with badge */}
-      <button className="notification-button" onClick={handleBellClick}>
+      <button
+        className={`notification-button ${isOpen ? "bell-active" : ""}`}
+        onClick={handleBellClick}
+        aria-expanded={isOpen}
+        aria-label="Notifications"
+      >
         <img
           src={notification_bell}
           alt="Notifications"
-          className="notification-icon"
+          className={`notification-icon ${isOpen ? "bell-ring" : ""}`}
         />
         {alertCount > 0 && (
           <span className="notification-badge">
@@ -93,59 +110,73 @@ const NotificationPanel = () => {
         )}
       </button>
 
-      {/* Dropdown panel */}
-      {isOpen && (
-        <div className="notification-panel">
-          <div className="notification-panel-header">
-            <h3>Notifications</h3>
-            {alerts.length > 0 && (
-              <button
-                className="clear-all-btn"
-                onClick={async () => {
-                  await alertAPI.clearAllAlerts();
-                  setAlerts([]);
-                  setAlertCount(0);
-                }}
-              >
-                Clear all
-              </button>
-            )}
-          </div>
+      {/* Backdrop — mobile only, fades in behind the panel */}
+      <div
+        className={`notification-backdrop ${isOpen ? "backdrop-visible" : ""}`}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
 
-          <div className="notification-list">
-            {loading ? (
-              <p className="notification-empty">Loading...</p>
-            ) : alerts.length === 0 ? (
-              <p className="notification-empty">No active alerts 🎉</p>
-            ) : (
-              alerts.map((alert) => (
-                <div
-                  key={alert.alert_id}
-                  className={`notification-item ${getPriorityClass(alert.priority)}`}
-                >
-                  <div className="notification-item-content">
-                    <span className="notification-icon-type">
-                      {getAlertIcon(alert.alert_type)}
-                    </span>
-                    <div className="notification-item-text">
-                      <p className="notification-message">{alert.message}</p>
-                      <p className="notification-time">
-                        {new Date(alert.triggered_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    className="notification-clear-btn"
-                    onClick={() => handleClearAlert(alert.alert_id)}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))
-            )}
-          </div>
+      {/* Panel — always mounted, animated via CSS */}
+      <div
+        className={`notification-panel ${isOpen ? "panel-open" : "panel-closed"}`}
+        aria-hidden={!isOpen}
+      >
+        <div className="notification-panel-header">
+          <h3>Notifications</h3>
+          {alerts.length > 0 && (
+            <button
+              className="clear-all-btn"
+              onClick={async () => {
+                await alertAPI.clearAllAlerts();
+                setAlerts([]);
+                setAlertCount(0);
+              }}
+            >
+              Clear all
+            </button>
+          )}
         </div>
-      )}
+
+        <div className="notification-list">
+          {loading ? (
+            <div className="notification-loading">
+              <span className="loading-dot" />
+              <span className="loading-dot" />
+              <span className="loading-dot" />
+            </div>
+          ) : alerts.length === 0 ? (
+            <p className="notification-empty">No active alerts 🎉</p>
+          ) : (
+            alerts.map((alert, index) => (
+              <div
+                key={alert.alert_id}
+                className={`notification-item ${getPriorityClass(alert.priority)}`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="notification-item-content">
+                  <span className="notification-icon-type">
+                    {getAlertIcon(alert.alert_type)}
+                  </span>
+                  <div className="notification-item-text">
+                    <p className="notification-message">{alert.message}</p>
+                    <p className="notification-time">
+                      {new Date(alert.triggered_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="notification-clear-btn"
+                  onClick={() => handleClearAlert(alert.alert_id)}
+                  aria-label="Dismiss notification"
+                >
+                  ✕
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 };
