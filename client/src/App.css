@@ -3,6 +3,8 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Fallback ensures it stays clean even if Inter fails to load */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Force body to match dashboard so no grey lines appear */
@@ -12,6 +14,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%; /* Important for internal scrolling */
+  font-family: Inter;
 }
 
 /* ── Global & Layout ── */
