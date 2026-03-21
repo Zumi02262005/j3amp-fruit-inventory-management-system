@@ -49,7 +49,7 @@ const InventoryItem = () => {
 
   const createRipple = useRipple();
 
-  const fetchBatchData = async () => {
+  const fetchBatchData = useCallback(async () => {
     try {
       const response = await inventoryAPI.getBatches(sku);
       setBatches(response.data.data);
@@ -58,12 +58,12 @@ const InventoryItem = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sku]); // Dependency of the callback
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Now you can safely include it in the dependency array
   useEffect(() => {
     fetchBatchData();
-  }, [sku]);
+  }, [fetchBatchData]);
 
   // Lock body scroll when any modal is open
   useEffect(() => {

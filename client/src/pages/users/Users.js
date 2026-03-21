@@ -222,7 +222,7 @@ const Users = () => {
             onClick={(e) => { createRipple(e); setShowCreateForm(true); }}
           >
             <img src={add_users_icon} alt="Add User" className="action-icon" />
-            <p className="add-user-card-text">+ New User</p>
+            <p className="add-user-card-text">New User</p>
           </button>
         </div>
 
