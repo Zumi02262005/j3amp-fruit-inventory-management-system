@@ -243,8 +243,8 @@ const getUserActivityLogs = async (req, res) => {
 
     const [logs] = await promisePool.execute(
       `SELECT * FROM activity_logs WHERE user_id = ?
-       ORDER BY log_date DESC LIMIT ? OFFSET ?`,
-      [id, limit, offset]
+      ORDER BY log_date DESC LIMIT ${limit} OFFSET ${offset}`,
+      [id]
     );
 
     res.json({ success: true, data: logs });
@@ -348,8 +348,8 @@ const getOwnActivityLogs = async (req, res) => {
 
     const [logs] = await promisePool.execute(
       `SELECT * FROM activity_logs WHERE user_id = ?
-       ORDER BY log_date DESC LIMIT ? OFFSET ?`,
-      [req.user.userId, limit, offset]
+      ORDER BY log_date DESC LIMIT ${limit} OFFSET ${offset}`,
+      [id]
     );
 
     res.json({ success: true, data: logs });

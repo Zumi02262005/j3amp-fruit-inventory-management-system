@@ -362,14 +362,17 @@ const deactivateSku = async (req, res) => {
   }
 };
 
-// ---- ADMIN: Update batch quantity ----
+// ---- ADMIN: Update full batch info ----
 const updateBatch = async (req, res) => {
   try {
     const { batch_id } = req.params;
-    const { remaining_quantity } = req.body;
+    const { remaining_quantity, expiration_date, supplier_name } = req.body;
 
-    if (remaining_quantity === undefined || remaining_quantity === null) {
-      return res.status(400).json({ success: false, message: "remaining_quantity is required" });
+    if (remaining_quantity === undefined || !expiration_date || !supplier_name) {
+      return res.status(400).json({
+        success: false,
+        message: "remaining_quantity, expiration_date, and supplier_name are required",
+      });
     }
 
     const [existing] = await promisePool.execute(
@@ -383,14 +386,16 @@ const updateBatch = async (req, res) => {
     const newStatus = parseFloat(remaining_quantity) === 0 ? "depleted" : "active";
 
     await promisePool.execute(
-      "UPDATE batches SET remaining_quantity = ?, status = ? WHERE batch_id = ?",
-      [remaining_quantity, newStatus, batch_id]
+      `UPDATE batches 
+       SET remaining_quantity = ?, expiration_date = ?, supplier_name = ?, status = ?
+       WHERE batch_id = ?`,
+      [remaining_quantity, expiration_date, supplier_name, newStatus, batch_id]
     );
 
     await logActivity(
       req.user.userId,
       "BATCH_UPDATED",
-      `Admin updated Batch #${batch_id} (SKU: ${existing[0].sku}) quantity from ${existing[0].remaining_quantity} to ${remaining_quantity}`
+      `Admin updated Batch #${batch_id} (SKU: ${existing[0].sku}) — qty: ${existing[0].remaining_quantity} → ${remaining_quantity}, expiry: ${expiration_date}, supplier: ${supplier_name}`
     );
 
     res.json({ success: true, message: "Batch updated successfully" });

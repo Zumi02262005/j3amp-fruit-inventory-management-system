@@ -13,6 +13,7 @@ import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
 import Profile from "./pages/profile/Profile";
 import Users from "./pages/users/Users";
+import UserDetails from "./pages/users/UserDetails";
 import AdminLogs from "./pages/logs-pages/admin-logs";
 import InboundLogs from "./pages/logs-pages/inbound-logs";
 import OutboundLogs from "./pages/logs-pages/outbound-logs";
@@ -35,6 +36,7 @@ function App() {
           <Route path="/inventory/:sku" element={<InventoryItem />} />
           <Route path="/profile" element={<ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}><Profile /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute allowedRoles={["admin"]}><Users /></ProtectedRoute>} />
+          <Route path="/users/:id" element={<ProtectedRoute allowedRoles={["admin"]}><UserDetails /></ProtectedRoute>} />
           <Route path="/admin-logs" element={<ProtectedRoute allowedRoles={["admin"]}><AdminLogs /></ProtectedRoute>} />
           <Route path="/inbound-logs" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundLogs /></ProtectedRoute>} />
           <Route path="/outbound-logs" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundLogs /></ProtectedRoute>} />

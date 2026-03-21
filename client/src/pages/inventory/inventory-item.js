@@ -24,7 +24,11 @@ const InventoryItem = () => {
   // Edit batch modal
   const [showEditBatch, setShowEditBatch] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
-  const [newQuantity, setNewQuantity] = useState("");
+  const [batchForm, setBatchForm] = useState({
+    remaining_quantity: "",
+    expiration_date: "",
+    supplier_name: "",
+  });
   const [batchStatus, setBatchStatus] = useState({ type: "", msg: "" });
 
   // Deactivate confirmation modal
@@ -42,6 +46,7 @@ const InventoryItem = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchBatchData();
   }, [sku]);
@@ -77,16 +82,26 @@ const InventoryItem = () => {
 
   const openEditBatchModal = (batch) => {
     setSelectedBatch(batch);
-    setNewQuantity(parseFloat(batch.remaining_quantity).toFixed(2));
+    // Format date as YYYY-MM-DD for the date input
+    const expDate = new Date(batch.expiration_date).toISOString().split("T")[0];
+    setBatchForm({
+      remaining_quantity: parseFloat(batch.remaining_quantity).toFixed(2),
+      expiration_date: expDate,
+      supplier_name: batch.supplier_name || "",
+    });
     setBatchStatus({ type: "", msg: "" });
     setShowEditBatch(true);
+  };
+
+  const handleBatchChange = (e) => {
+    setBatchForm({ ...batchForm, [e.target.name]: e.target.value });
   };
 
   const handleBatchSubmit = async (e) => {
     e.preventDefault();
     setBatchStatus({ type: "loading", msg: "Updating batch..." });
     try {
-      await inventoryAPI.updateBatch(selectedBatch.batch_id, { remaining_quantity: newQuantity });
+      await inventoryAPI.updateBatch(selectedBatch.batch_id, batchForm);
       setBatchStatus({ type: "success", msg: "Batch updated successfully!" });
       await fetchBatchData();
       setTimeout(() => setShowEditBatch(false), 1000);
@@ -232,21 +247,34 @@ const InventoryItem = () => {
             )}
             <form onSubmit={handleBatchSubmit} className="inv-modal-form">
               <div className="inv-modal-input-group">
-                <label>Expires</label>
-                <input type="text" value={new Date(selectedBatch.expiration_date).toLocaleDateString()} disabled />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Supplier</label>
-                <input type="text" value={selectedBatch.supplier_name} disabled />
-              </div>
-              <div className="inv-modal-input-group">
                 <label>Remaining Quantity (kg)</label>
                 <input
                   type="number"
-                  value={newQuantity}
-                  onChange={(e) => setNewQuantity(e.target.value)}
+                  name="remaining_quantity"
+                  value={batchForm.remaining_quantity}
+                  onChange={handleBatchChange}
                   step="0.01"
                   min="0"
+                  required
+                />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Expiration Date</label>
+                <input
+                  type="date"
+                  name="expiration_date"
+                  value={batchForm.expiration_date}
+                  onChange={handleBatchChange}
+                  required
+                />
+              </div>
+              <div className="inv-modal-input-group">
+                <label>Supplier</label>
+                <input
+                  type="text"
+                  name="supplier_name"
+                  value={batchForm.supplier_name}
+                  onChange={handleBatchChange}
                   required
                 />
               </div>

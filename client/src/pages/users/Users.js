@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { userAPI } from "../../services/api";
 import "./Users.css";
 
 const Users = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [status, setStatus] = useState({ type: "", msg: "" });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [createForm, setCreateForm] = useState({
     username: "",
@@ -124,8 +127,18 @@ const Users = () => {
     setStatus({ type: "", msg: "" });
   };
 
-  const activeUsers = users.filter((u) => u.status === "active");
-  const inactiveUsers = users.filter((u) => u.status === "inactive");
+  // Filter users by search query (first or last name)
+  const filterUsers = (userList) => {
+    if (!searchQuery.trim()) return userList;
+    const query = searchQuery.toLowerCase();
+    return userList.filter((u) => {
+      const nameParts = u.full_name.toLowerCase().split(" ");
+      return nameParts.some((part) => part.startsWith(query));
+    });
+  };
+
+  const activeUsers = filterUsers(users.filter((u) => u.status === "active"));
+  const inactiveUsers = filterUsers(users.filter((u) => u.status === "inactive"));
 
   if (loading) return <div className="loader">Loading users...</div>;
   if (error) return <div className="error-bar">{error}</div>;
@@ -139,6 +152,17 @@ const Users = () => {
         </button>
       </div>
 
+      {/* Search Bar */}
+      <div className="users-search-wrapper">
+        <input
+          type="text"
+          className="users-search-input"
+          placeholder="Search by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
       {status.msg && (
         <div className={`users-status ${status.type}`}>{status.msg}</div>
       )}
@@ -150,7 +174,7 @@ const Users = () => {
           <p className="users-section-label">Active Users ({activeUsers.length})</p>
           <div className="user-list">
             {activeUsers.length === 0 ? (
-              <div className="user-card"><p><strong>No active users</strong></p></div>
+              <div className="user-card"><p><strong>No active users found</strong></p></div>
             ) : (
               activeUsers.map((user) => (
                 <div className="user-card" key={user.user_id}>
@@ -169,6 +193,9 @@ const Users = () => {
                     <li>Last login: {user.last_login ? new Date(user.last_login).toLocaleDateString() : "Never"}</li>
                   </ul>
                   <div className="user-card-actions">
+                    <button className="user-view-btn" onClick={() => navigate(`/users/${user.user_id}`)}>
+                      View Details
+                    </button>
                     <button className="user-edit-btn" onClick={() => openEditModal(user)}>
                       Edit
                     </button>
@@ -202,6 +229,9 @@ const Users = () => {
                     <li>{user.email}</li>
                   </ul>
                   <div className="user-card-actions">
+                    <button className="user-view-btn" onClick={() => navigate(`/users/${user.user_id}`)}>
+                      View Details
+                    </button>
                     <button className="user-reactivate-btn" onClick={() => handleReactivate(user.user_id)}>
                       Reactivate
                     </button>
@@ -304,7 +334,6 @@ const Users = () => {
               <button type="submit" className="modal-submit-btn">Save Changes</button>
             </form>
 
-            {/* Reset Password Section */}
             <div className="modal-divider" />
             <div className="modal-form">
               <div className="modal-input-group">
@@ -316,10 +345,7 @@ const Users = () => {
                   onChange={(e) => setResetPassword(e.target.value)}
                 />
               </div>
-              <button
-                className="modal-reset-btn"
-                onClick={() => handleResetPassword(selectedUser.user_id)}
-              >
+              <button className="modal-reset-btn" onClick={() => handleResetPassword(selectedUser.user_id)}>
                 Reset Password
               </button>
             </div>

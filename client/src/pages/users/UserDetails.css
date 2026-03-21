@@ -1,0 +1,154 @@
+.user-details-container {
+  min-height: 100vh;
+  background: #efefef;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.user-details-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
+}
+
+.user-details-back {
+  color: #ff6200;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.user-details-back:hover {
+  text-decoration: underline;
+}
+
+.user-details-title {
+  font: 700 clamp(1.2rem, 4vw, 1.5rem) / 1.2 Inter, sans-serif;
+  color: #000;
+  margin: 0;
+}
+
+/* Content */
+.user-details-content {
+  padding: clamp(1.25rem, 4vw, 2rem);
+  max-width: 480px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Profile Card */
+.user-profile-card {
+  background: linear-gradient(86deg, #ff6200 22%, #ff8c45 92%);
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.user-profile-card-label {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+}
+
+.user-profile-list {
+  padding-left: 1.25rem;
+  color: #fff;
+  font-size: 0.92rem;
+  line-height: 1.8;
+}
+
+/* Activity Card */
+.user-activity-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.user-activity-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.user-activity-label {
+  color: #ff6200;
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+}
+
+.user-activity-empty {
+  color: #999;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.user-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.user-activity-item {
+  border-left: 3px solid #ff6200;
+  padding-left: 0.75rem;
+}
+
+.user-activity-action {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ff6200;
+}
+
+.user-activity-details {
+  margin: 2px 0;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.user-activity-date {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #999;
+}
+
+.user-activity-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.view-full-history-link {
+  color: #ff6200;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-full-history-link:hover {
+  text-decoration: underline;
+}
+
+.user-history-close {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-history-close:hover {
+  color: #333;
+}
