@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { logsAPI } from "../../services/api";
@@ -27,7 +26,6 @@ const useRipple = () => {
 };
 
 const AdminDashboard = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);

@@ -24,7 +24,6 @@ const fmtDate = (d) => new Date(d).toLocaleDateString("en-PH", { year: "numeric"
 const ReportsView = () => {
   const navigate = useNavigate();
   const createRipple = useRipple();
-  const printRef = useRef();
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
