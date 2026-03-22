@@ -51,6 +51,7 @@ export const inventoryAPI = {
   getExpiringItems: () => api.get("/inventory/expiring-items"),
   getExpiredItems: () => api.get("/inventory/expired-items"),
   getExpiredCount: () => api.get("/inventory/expired-count"),
+  getNoStockCount: () => api.get("/inventory/no-stock"),
   autoExpireBatches: () => api.post("/inventory/auto-expire"),
   getSkuDropdown: () => api.get("/inventory/sku-dropdown"),
   getSkuDropdownDispatch: () => api.get("/inventory/sku-dropdown/dispatch"),
@@ -58,7 +59,6 @@ export const inventoryAPI = {
   updateInventoryItem: (sku, data) => api.put(`/inventory/${sku}`, data),
   deactivateSku: (sku) => api.patch(`/inventory/${sku}/deactivate`),
   updateBatch: (batchId, data) => api.patch(`/inventory/batches/${batchId}`, data),
-  writeOffBatches: (data) => api.patch("/inventory/write-off", data),
 };
 
 // ---- Transaction API ----
@@ -103,6 +103,7 @@ export const alertAPI = {
   clearAllAlerts: () => api.patch("/alerts/clear-all"),
 };
 
+// ---- Reports API ----
 export const reportsAPI = {
   getAllReports: () => api.get("/reports"),
   getReport: (reportId) => api.get(`/reports/${reportId}`),
@@ -110,6 +111,15 @@ export const reportsAPI = {
   generateReport: (data) => api.post("/reports/generate", data),
   updateReport: (reportId, data) => api.put(`/reports/${reportId}`, data),
   deleteReport: (reportId) => api.delete(`/reports/${reportId}`),
+};
+
+// ---- BO Requests API ----
+export const boAPI = {
+  submitRequest: (data) => api.post("/bo-requests", data),
+  getAllRequests: () => api.get("/bo-requests"),
+  getPendingCount: () => api.get("/bo-requests/pending-count"),
+  approveRequest: (id) => api.patch(`/bo-requests/${id}/approve`),
+  rejectRequest: (id) => api.patch(`/bo-requests/${id}/reject`),
 };
 
 export default api;

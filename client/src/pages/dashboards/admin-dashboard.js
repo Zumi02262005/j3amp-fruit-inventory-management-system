@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { inventoryAPI } from "../../services/api";
-import { logsAPI } from "../../services/api";
+import { inventoryAPI, logsAPI, boAPI } from "../../services/api";
 import NotificationPanel from "../../components/NotificationPanel";
 import "./admin-dashboard.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
@@ -10,7 +9,6 @@ import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
 import backup_data_icon from "../../assets/icons/backup_icon.svg";
 import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
 
-/* ── Ripple helper ── */
 const useRipple = () => {
   const createRipple = useCallback((e) => {
     const btn = e.currentTarget;
@@ -31,6 +29,7 @@ const AdminDashboard = () => {
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [pendingBOCount, setPendingBOCount] = useState(0);
 
   const createRipple = useRipple();
 
@@ -40,7 +39,6 @@ const AdminDashboard = () => {
         const response = await inventoryAPI.getInventoryTotal();
         setTotalStock(response.data.data);
       } catch (err) {
-        console.error("Failed to fetch total stock:", err);
         setTotalStock("N/A");
       }
     };
@@ -50,7 +48,6 @@ const AdminDashboard = () => {
         const response = await inventoryAPI.getInventoryCategories();
         setTotalCategories(response.data.data);
       } catch (err) {
-        console.error("Failed to fetch categories:", err);
         setTotalCategories("N/A");
       }
     };
@@ -60,7 +57,6 @@ const AdminDashboard = () => {
         const response = await inventoryAPI.getExpiringBatches();
         setExpiringCount(response.data.data);
       } catch (err) {
-        console.error("Failed to fetch expiring batches:", err);
         setExpiringCount("N/A");
       }
     };
@@ -70,8 +66,16 @@ const AdminDashboard = () => {
         const response = await logsAPI.recentActivity();
         setRecentActivity(response.data.data);
       } catch (err) {
-        console.error("Failed to retrieve recent activity: ", err);
         setRecentActivity([]);
+      }
+    };
+
+    const fetchPendingBO = async () => {
+      try {
+        const response = await boAPI.getPendingCount();
+        setPendingBOCount(response.data.data);
+      } catch (err) {
+        setPendingBOCount(0);
       }
     };
 
@@ -79,6 +83,7 @@ const AdminDashboard = () => {
     fetchTotalStock();
     fetchCategories();
     fetchExpiringBatches();
+    fetchPendingBO();
   }, []);
 
   const handleViewInventory = () => navigate("/inventory-home");
@@ -87,6 +92,18 @@ const AdminDashboard = () => {
     <div className="dashboard-container page-with-navbar">
       <div className="dashboard-header">
         <p className="dashboard-overview-label">Overview</p>
+
+        {/* Requests button with pending badge */}
+        <button
+          className="requests-button"
+          onClick={() => navigate("/bo-requests")}
+        >
+          Requests
+          {pendingBOCount > 0 && (
+            <span className="requests-badge">{pendingBOCount}</span>
+          )}
+        </button>
+
         <NotificationPanel />
         <button className="profile-button" onClick={() => navigate("/profile")}>
           <img src={profile_icon} alt="Profile" className="profile-icon" />
@@ -138,31 +155,19 @@ const AdminDashboard = () => {
         </div>
 
         <div id="admin-quick-actions">
-          <button
-              id="generate-report-card"
-              onClick={(e) => { createRipple(e); navigate("/reports"); }}
-            >
+          <button id="generate-report-card" onClick={(e) => { createRipple(e); navigate("/reports"); }}>
             <img src={generate_report_icon} alt="Generate Report" className="action-icon" />
             <p id="generate-report-text">Generate report</p>
           </button>
-          <button
-            id="manage-users-card"
-            onClick={(e) => { createRipple(e); navigate("/users"); }}
-          >
+          <button id="manage-users-card" onClick={(e) => { createRipple(e); navigate("/users"); }}>
             <img src={manage_users_icon} alt="Manage Users" className="action-icon" />
             <p id="manage-users-text">Manage users</p>
           </button>
-          <button
-            id="logs-card"
-            onClick={(e) => { createRipple(e); navigate("/admin-logs"); }}
-          >
+          <button id="logs-card" onClick={(e) => { createRipple(e); navigate("/admin-logs"); }}>
             <img src={backup_data_icon} alt="Logs" className="action-icon" />
             <p id="logs-text">Logs</p>
           </button>
-          <button
-            id="view-inventory-card"
-            onClick={(e) => { createRipple(e); handleViewInventory(); }}
-          >
+          <button id="view-inventory-card" onClick={(e) => { createRipple(e); handleViewInventory(); }}>
             <img src={view_inventory_icon} alt="View Inventory" className="action-icon" />
             <p id="view-inventory-text">View inventory</p>
           </button>

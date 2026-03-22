@@ -11,17 +11,17 @@ import InventoryHome from "./pages/inventory/inventory-home";
 import InventoryItem from "./pages/inventory/inventory-item";
 import ReceiveStock from "./pages/transactions/receive-stock";
 import DispatchStock from "./pages/transactions/dispatch-stock";
+import BatchWriteOff from "./pages/transactions/BatchWriteOff";
 import Profile from "./pages/profile/Profile";
 import Users from "./pages/users/Users";
-import UserDetails from "./pages/users/UserDetails";
 import AdminLogs from "./pages/logs-pages/admin-logs";
 import InboundLogs from "./pages/logs-pages/inbound-logs";
 import OutboundLogs from "./pages/logs-pages/outbound-logs";
 import ReportsHome from "./pages/reports/reports-home";
 import ReportsGenerate from "./pages/reports/reports-generate";
 import ReportsView from "./pages/reports/reports-view";
+import BORequests from "./pages/admin/BORequests";
 import "./App.css";
-import BatchWriteOff from "./pages/transactions/BatchWriteOff";
 
 function App() {
   return (
@@ -30,25 +30,23 @@ function App() {
         <NavigationBar />
         <Routes>
           <Route path="/login" element={<Login />} />
-
           <Route path="/admin-dashboard" element={<ProtectedRoute allowedRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/inbound-dashboard" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundDashboard /></ProtectedRoute>} />
           <Route path="/outbound-dashboard" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundDashboard /></ProtectedRoute>} />
           <Route path="/inventory-home" element={<ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}><InventoryHome /></ProtectedRoute>} />
           <Route path="/receive-stock" element={<ProtectedRoute allowedRoles={["inbound"]}><ReceiveStock /></ProtectedRoute>} />
           <Route path="/dispatch-stock" element={<ProtectedRoute allowedRoles={["outbound"]}><DispatchStock /></ProtectedRoute>} />
+          <Route path="/batch-write-off" element={<ProtectedRoute allowedRoles={["outbound"]}><BatchWriteOff /></ProtectedRoute>} />
           <Route path="/inventory/:sku" element={<InventoryItem />} />
           <Route path="/profile" element={<ProtectedRoute allowedRoles={["admin", "inbound", "outbound"]}><Profile /></ProtectedRoute>} />
           <Route path="/users" element={<ProtectedRoute allowedRoles={["admin"]}><Users /></ProtectedRoute>} />
-          <Route path="/users/:id" element={<ProtectedRoute allowedRoles={["admin"]}><UserDetails /></ProtectedRoute>} />
           <Route path="/admin-logs" element={<ProtectedRoute allowedRoles={["admin"]}><AdminLogs /></ProtectedRoute>} />
           <Route path="/inbound-logs" element={<ProtectedRoute allowedRoles={["inbound"]}><InboundLogs /></ProtectedRoute>} />
           <Route path="/outbound-logs" element={<ProtectedRoute allowedRoles={["outbound"]}><OutboundLogs /></ProtectedRoute>} />
-          <Route path="/reports" element={<ProtectedRoute role="admin"><ReportsHome /></ProtectedRoute>} />
-          <Route path="/reports/generate" element={<ProtectedRoute role="admin"><ReportsGenerate /></ProtectedRoute>} />
-          <Route path="/reports/view" element={<ProtectedRoute role="admin"><ReportsView /></ProtectedRoute>} />
-          <Route path="/batch-write-off" element={<ProtectedRoute allowedRoles={["outbound"]}><BatchWriteOff /></ProtectedRoute>} />
-
+          <Route path="/reports" element={<ProtectedRoute allowedRoles={["admin"]}><ReportsHome /></ProtectedRoute>} />
+          <Route path="/reports/generate" element={<ProtectedRoute allowedRoles={["admin"]}><ReportsGenerate /></ProtectedRoute>} />
+          <Route path="/reports/view" element={<ProtectedRoute allowedRoles={["admin"]}><ReportsView /></ProtectedRoute>} />
+          <Route path="/bo-requests" element={<ProtectedRoute allowedRoles={["admin"]}><BORequests /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

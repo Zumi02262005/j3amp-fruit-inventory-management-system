@@ -13,36 +13,26 @@ const logRoutes = require("./routes/logRoutes");
 const userRoutes = require("./routes/userRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const boRoutes = require("./routes/boRoutes");
 
 const app = express();
 
-// ---- Rate Limiters ----
-
-// Strict limiter for login — max 10 attempts per 15 minutes per IP
 const loginLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 10,
-  message: {
-    success: false,
-    message: "Too many login attempts. Please try again after 15 minutes.",
-  },
+  message: { success: false, message: "Too many login attempts. Please try again after 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// General API limiter — max 1000 requests per 15 minutes per IP
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  message: {
-    success: false,
-    message: "Too many requests. Please slow down.",
-  },
+  message: { success: false, message: "Too many requests. Please slow down." },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
-// ---- Middleware ----
 app.use(cors({
   origin: process.env.CLIENT_URL || "http://localhost:3000",
   credentials: true,
@@ -55,7 +45,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// ---- Routes ----
 app.get("/", (req, res) => {
   res.json({ message: "J3AMP Inventory Management System API", version: "1.0.0", status: "running" });
 });
@@ -64,10 +53,7 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "Backend is working!" });
 });
 
-// Apply strict limiter to login only
 app.use("/api/auth/login", loginLimiter);
-
-// Apply general limiter to all other API routes
 app.use("/api", apiLimiter);
 
 app.use("/api/auth", authRoutes);
@@ -77,8 +63,8 @@ app.use("/api/logs", logRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/bo-requests", boRoutes);
 
-// ---- Error Handlers ----
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
@@ -92,13 +78,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-// ---- Start Server ----
 const startServer = async () => {
   try {
     await testConnection();
     await runAutoExpire();
     await runAlertGeneration();
-
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {

@@ -345,7 +345,10 @@ const deactivateSku = async (req, res) => {
     }
 
     await promisePool.execute(
-      "UPDATE inventory SET status = 'inactive' WHERE sku = ?",
+      "UPDATE inventory SET status = 'inactive' WHERE sku = ?", [sku]
+    );
+    await promisePool.execute(
+      "UPDATE batches SET status = 'depleted', remaining_quantity = 0 WHERE sku = ? AND status = 'active'",
       [sku]
     );
 

@@ -26,9 +26,8 @@ const InboundDashboard = () => {
   const navigate = useNavigate();
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);
-  const [lowStockCount, setLowStockCount] = useState(null);
+  const [stockAlerts, setStockAlerts] = useState(null);
   const [recentReceipts, setRecentReceipts] = useState([]);
-  const [noStockCount, setNoStockCount] = useState(null);
 
   const createRipple = useRipple();
 
@@ -53,13 +52,18 @@ const InboundDashboard = () => {
       }
     };
 
-    const fetchLowStock = async () => {
+    // Combine low stock + no stock into one count
+    const fetchStockAlerts = async () => {
       try {
-        const response = await inventoryAPI.getLowStockQuantity();
-        setLowStockCount(response.data.data);
+        const [lowRes, noRes] = await Promise.all([
+          inventoryAPI.getLowStockQuantity(),
+          inventoryAPI.getNoStockCount(),
+        ]);
+        const combined = (lowRes.data.data || 0) + (noRes.data.data || 0);
+        setStockAlerts(combined);
       } catch (err) {
-        console.error("Failed to fetch low stock items:", err);
-        setLowStockCount("N/A");
+        console.error("Failed to fetch stock alerts:", err);
+        setStockAlerts(0);
       }
     };
 
@@ -73,20 +77,10 @@ const InboundDashboard = () => {
       }
     };
 
-    const fetchNoStock = async () => {
-      try {
-        const response = await inventoryAPI.getNoStockCount();
-        setNoStockCount(response.data.data);
-      } catch (err) {
-        setNoStockCount("0");
-      }
-    };
-
     fetchTotalStock();
     fetchCategories();
-    fetchLowStock();
+    fetchStockAlerts();
     fetchRecentReceipts();
-    fetchNoStock();
   }, []);
 
   const handleReceiveStock = () => navigate("/receive-stock");
@@ -117,14 +111,10 @@ const InboundDashboard = () => {
               </p>
             </div>
             <div className="categories-section">
-              <p className="categories">Low Stock: </p>
+              <p className="categories">Low/No Stock: </p>
               <p className="categories-count">
-                {lowStockCount !== null ? lowStockCount : "..."}
+                {stockAlerts !== null ? stockAlerts : "..."}
               </p>
-            </div>
-            <div className="categories-section">
-              <p className="categories">No Stock: </p>
-              <p className="categories-count">{noStockCount !== null ? noStockCount : 0}</p>
             </div>
           </div>
         </div>
