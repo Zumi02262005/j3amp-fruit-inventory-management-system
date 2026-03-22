@@ -26,15 +26,19 @@
 }
 
 /* ── Nav item animations ── */
-.navbar-links li a {
+.navbar-links li a,
+.navbar-links li a:link,
+.navbar-links li a:visited {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.25rem;
-  color: #595959;
-  text-decoration: none;
-  font-family: Inter;
+  color: #595959 !important;
+  text-decoration: none !important;
+  -webkit-text-decoration: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
   font-weight: 500;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -47,13 +51,15 @@
 }
 
 /* Active pill background */
-.navbar-links li a.active {
-  color: #ff6200;
+.navbar-links li a.active,
+.navbar-links li a.active:link,
+.navbar-links li a.active:visited {
+  color: #ff6200 !important;
   transform: translateY(-4px);
 }
 
 .navbar-links li a:hover {
-  color: #ff6200;
+  color: #ff6200 !important;
   transform: translateY(-2px);
 }
 
@@ -121,29 +127,32 @@
   .navbar {
     padding: 0 1rem;
   }
+
   .navbar-brand {
     display: none;
   }
+
   .navbar-links {
     flex: 2;
     justify-content: space-around;
     gap: 0.5rem;
   }
-  .navbar-links li a {
+
+  .navbar-links li a,
+  .navbar-links li a:link,
+  .navbar-links li a:visited {
     font-size: 0.9rem;
-    -webkit-tap-highlight-color: transparent;
-    color: #595959;
-    text-decoration: none;
-    -webkit-text-decoration: none;
-    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   }
+
   .user-badge {
     display: none;
   }
+
   .navbar-user {
     flex: initial;
     margin-left: 1rem;
   }
+
   .logout-btn {
     padding: 4px 10px;
     font-size: 0.8rem;
