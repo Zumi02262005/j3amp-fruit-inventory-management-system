@@ -223,16 +223,20 @@ const InventoryHome = () => {
         </div>
 
         {/* Expired */}
-        {expired_items.length > 0 && (
-          <div className="expired-items">
-            <p className="expired-label">Expired</p>
-            <div className="expired-list">
-              {expired_items.map((item) => (
+        <div className="expired-items">
+          <p className="expired-label">Expired</p>
+          <div className="expired-list">
+            {expired_items.length === 0 ? (
+              <div className="expired-card">
+                <p><strong>No expired batches</strong></p>
+              </div>
+            ) : (
+              expired_items.map((item) => (
                 <ExpiredCard key={item.batch_id} item={item} navigate={navigate} />
-              ))}
-            </div>
+              ))
+            )}
           </div>
-        )}
+        </div>
 
         {/* All Products */}
         <div className="all-products">

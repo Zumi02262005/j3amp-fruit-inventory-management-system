@@ -22,6 +22,7 @@ import ReportsGenerate from "./pages/reports/reports-generate";
 import ReportsView from "./pages/reports/reports-view";
 import BORequests from "./pages/admin/BORequests";
 import "./App.css";
+import UserDetails from "./pages/users/UserDetails";
 
 function App() {
   return (
@@ -47,6 +48,8 @@ function App() {
           <Route path="/reports/generate" element={<ProtectedRoute allowedRoles={["admin"]}><ReportsGenerate /></ProtectedRoute>} />
           <Route path="/reports/view" element={<ProtectedRoute allowedRoles={["admin"]}><ReportsView /></ProtectedRoute>} />
           <Route path="/bo-requests" element={<ProtectedRoute allowedRoles={["admin"]}><BORequests /></ProtectedRoute>} />
+          <Route path="/users" element={<ProtectedRoute allowedRoles={["admin"]}><Users /></ProtectedRoute>} />
+          <Route path="/users/:id" element={<ProtectedRoute allowedRoles={["admin"]}><UserDetails /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
