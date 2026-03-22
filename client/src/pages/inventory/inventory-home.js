@@ -51,7 +51,7 @@ const InventoryHome = () => {
   const [expired_items, setExpiredItems] = useState([]);
   const [totalStock, setTotalStock] = useState(undefined);
   const [totalCategories, setTotalCategories] = useState(null);
-  const [expiringCount, setExpiringCount] = useState(null);
+  const [stockAlerts, setStockAlerts] = useState(null);
 
   const [showAddSku, setShowAddSku] = useState(false);
   const [skuForm, setSkuForm] = useState({
@@ -68,14 +68,15 @@ const InventoryHome = () => {
 
   const fetchAll = async () => {
     try {
-      const [invRes, lowRes, expRes, expiredRes, totalRes, catRes, expCountRes] = await Promise.all([
+      const [invRes, lowRes, expRes, expiredRes, totalRes, catRes, lowQtyRes, noStockRes] = await Promise.all([
         inventoryAPI.getInventory(),
         inventoryAPI.getLowStockItems(),
         inventoryAPI.getExpiringItems(),
         inventoryAPI.getExpiredItems(),
         inventoryAPI.getInventoryTotal(),
         inventoryAPI.getInventoryCategories(),
-        inventoryAPI.getExpiringBatches(),
+        inventoryAPI.getLowStockQuantity(),
+        inventoryAPI.getNoStockCount(),
       ]);
       if (invRes.data.success) setItems(invRes.data.data);
       if (lowRes.data.success) setLowStockItems(lowRes.data.data);
@@ -83,7 +84,7 @@ const InventoryHome = () => {
       if (expiredRes.data.success) setExpiredItems(expiredRes.data.data);
       setTotalStock(totalRes.data.data);
       setTotalCategories(catRes.data.data);
-      setExpiringCount(expCountRes.data.data);
+      setStockAlerts((lowQtyRes.data.data || 0) + (noStockRes.data.data || 0));
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load inventory");
     } finally {
@@ -147,8 +148,8 @@ const InventoryHome = () => {
               </p>
             </div>
             <div className="expiring-section">
-              <p className="expiring">Expiring: </p>
-              <p className="expiring-count">{expiringCount !== null ? expiringCount : "..."}</p>
+              <p className="expiring">Low/No Stock: </p>
+              <p className="expiring-count">{stockAlerts !== null ? stockAlerts : "..."}</p>
             </div>
           </div>
         </div>
