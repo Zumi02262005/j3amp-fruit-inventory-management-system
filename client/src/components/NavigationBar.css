@@ -131,6 +131,11 @@
   }
   .navbar-links li a {
     font-size: 0.9rem;
+    -webkit-tap-highlight-color: transparent;
+    color: #595959;
+    text-decoration: none;
+    -webkit-text-decoration: none;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
   }
   .user-badge {
     display: none;

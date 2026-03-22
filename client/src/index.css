@@ -18,6 +18,8 @@ code {
 
 /* Remove default browser margins */
 * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
