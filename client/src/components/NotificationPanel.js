@@ -149,7 +149,7 @@ const NotificationPanel = () => {
               <span className="loading-dot" />
             </div>
           ) : alerts.length === 0 ? (
-            <p className="notification-empty">No active alerts 🎉</p>
+            <p className="notification-empty">No active alerts</p>
           ) : (
             alerts.map((alert, index) => (
               <div
