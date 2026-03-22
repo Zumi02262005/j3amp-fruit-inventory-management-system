@@ -127,9 +127,9 @@ const ReportsView = () => {
               <tr><th>Metric</th><th>Value</th></tr>
             </thead>
             <tbody>
-              <tr><td>Intake</td><td>${fmt(report.gross_sales)} kg</td></tr>
               <tr><td>Beginning Inventory</td><td>${fmt(report.beginning_inventory)} kg</td></tr>
               <tr><td>Ending Inventory</td><td>${fmt(report.ending_inventory)} kg</td></tr>
+              <tr><td>Offtake</td><td>${fmt(report.gross_sales)} kg</td></tr>
               <tr><td>Deliveries</td><td>${fmt(report.deliveries)} kg</td></tr>
               <tr><td>Stock Difference</td><td>${fmt(report.stock_difference)} kg</td></tr>
               <tr><td>Average Offtake</td><td>${fmt(report.average_offtake)} kg/day</td></tr>
@@ -171,9 +171,9 @@ const ReportsView = () => {
                 {fmtDate(report.start_date)} — {fmtDate(report.end_date)}
               </p>
               <ul className="report-card-details">
-                <li>Intake: <strong>{fmt(report.gross_sales)} kg</strong></li>
                 <li>Beginning Inventory: <strong>{fmt(report.beginning_inventory)} kg</strong></li>
                 <li>Ending Inventory: <strong>{fmt(report.ending_inventory)} kg</strong></li>
+                <li>Offtake: <strong>{fmt(report.gross_sales)} kg</strong></li>
                 <li>Deliveries: <strong>{fmt(report.deliveries)} kg</strong></li>
                 <li>Difference: <strong>{fmt(report.stock_difference)} kg</strong></li>
                 <li>Average Offtake: <strong>{fmt(report.average_offtake)} kg/day</strong></li>
@@ -205,9 +205,9 @@ const ReportsView = () => {
             )}
             <form onSubmit={handleEditSubmit} className="rpt-modal-form">
               {[
-                { name: "gross_sales",         label: "Intake (kg)" },
                 { name: "beginning_inventory", label: "Beginning Inventory (kg)" },
                 { name: "ending_inventory",    label: "Ending Inventory (kg)" },
+                { name: "gross_sales",         label: "Offtake (kg)" },
                 { name: "deliveries",          label: "Deliveries (kg)" },
                 { name: "stock_difference",    label: "Stock Difference (kg)" },
                 { name: "average_offtake",     label: "Average Offtake (kg/day)" },
