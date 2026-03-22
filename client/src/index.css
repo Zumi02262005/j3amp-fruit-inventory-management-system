@@ -31,6 +31,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+button {
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ── Constrain app to phone width ── */
 #root {
   max-width: 430px;
