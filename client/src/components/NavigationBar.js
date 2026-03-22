@@ -220,19 +220,19 @@ const NavigationBar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/outbound-logs">
-                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                  <path d="M12 7C12 6.44772 12.4477 6 13 6C13.5523 6 14 6.44772 14 7V15H12V7Z" fill="currentColor" />
-                  <path d="M18.7482 16.5313C19.2869 16.8771 19.4433 17.5941 19.0976 18.1328C18.7519 18.6716 18.0348 18.828 17.4961 18.4823L11.9937 14.951L13.2458 13L18.7482 16.5313Z" fill="currentColor" />
-                  <path d="M13 1C19.6274 1 25 6.37258 25 13C25 19.6274 19.6274 25 13 25C6.37258 25 1 19.6274 1 13C1 6.37258 6.37258 1 13 1Z" stroke="currentColor" strokeWidth="2" />
+              <NavLink to="/batch-write-off">
+                <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H7L6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <span>BO</span>
               </NavLink>
             </li>
             <li>
-              <NavLink to="/batch-write-off">
-                <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
-                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H7L6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <NavLink to="/outbound-logs">
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <path d="M12 7C12 6.44772 12.4477 6 13 6C13.5523 6 14 6.44772 14 7V15H12V7Z" fill="currentColor" />
+                  <path d="M18.7482 16.5313C19.2869 16.8771 19.4433 17.5941 19.0976 18.1328C18.7519 18.6716 18.0348 18.828 17.4961 18.4823L11.9937 14.951L13.2458 13L18.7482 16.5313Z" fill="currentColor" />
+                  <path d="M13 1C19.6274 1 25 6.37258 25 13C25 19.6274 19.6274 25 13 25C6.37258 25 1 19.6274 1 13C1 6.37258 6.37258 1 13 1Z" stroke="currentColor" strokeWidth="2" />
                 </svg>
                 <span>Logs</span>
               </NavLink>
