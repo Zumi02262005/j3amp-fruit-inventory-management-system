@@ -49,7 +49,7 @@ const InventoryHome = () => {
   const [low_stock_items, setLowStockItems] = useState([]);
   const [expiring_items, setExpiringItems] = useState([]);
   const [expired_items, setExpiredItems] = useState([]);
-  const [totalStock, setTotalStock] = useState(null);
+  const [totalStock, setTotalStock] = useState(undefined);
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
 
@@ -136,7 +136,7 @@ const InventoryHome = () => {
           <div className="total-stock-section">
             <p className="total-stock">Total Stock</p>
             <p className="total-stock-amount">
-              {totalStock !== null ? `${totalStock} kg` : "Loading..."}
+              {totalStock === undefined ? "Loading..." : `${totalStock} kg`}
             </p>
           </div>
           <div className="stock-subsection">

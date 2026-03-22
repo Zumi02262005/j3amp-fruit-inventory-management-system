@@ -29,7 +29,7 @@ const viewInventory = async (req, res) => {
 const getInventoryTotal = async (req, res) => {
   try {
     const [[{ grand_total }]] = await promisePool.execute(
-      `SELECT SUM(remaining_quantity) AS grand_total FROM batches WHERE status = 'active'`
+      `SELECT COALESCE(SUM(remaining_quantity), 0) AS grand_total FROM batches WHERE status = 'active'`
     );
     res.json({ success: true, data: grand_total });
   } catch (error) {
