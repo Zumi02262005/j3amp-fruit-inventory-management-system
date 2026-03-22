@@ -52,7 +52,6 @@ body {
 .notification-icon {
   width: clamp(20px, 6vw, 28px);
   height: auto;
-  margin-left: 25vw;
 }
 
 .profile-icon {

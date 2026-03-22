@@ -18,6 +18,8 @@ const {
   updateInventoryItem,
   deactivateSku,
   updateBatch,
+  getNoStockCount,
+  writeOffBatches,
 } = require("../controllers/inventoryController");
 const { authenticateToken, authorizeRole } = require("../middleware/authMiddleware");
 
@@ -38,5 +40,7 @@ router.post("/", authenticateToken, authorizeRole("admin"), createSku);
 router.put("/:sku", authenticateToken, authorizeRole("admin"), updateInventoryItem);
 router.patch("/:sku/deactivate", authenticateToken, authorizeRole("admin"), deactivateSku);
 router.patch("/batches/:batch_id", authenticateToken, authorizeRole("admin"), updateBatch);
+router.get("/no-stock", authenticateToken, getNoStockCount);
+router.patch("/write-off", authenticateToken, authorizeRole("outbound", "admin"), writeOffBatches);
 
 module.exports = router;

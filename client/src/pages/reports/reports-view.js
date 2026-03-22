@@ -29,17 +29,14 @@ const ReportsView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ── Edit modal ── */
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [editStatus, setEditStatus] = useState({ type: "", msg: "" });
 
-  /* ── Delete confirm ── */
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteStatus, setDeleteStatus] = useState({ type: "", msg: "" });
 
-  /* ── Lock scroll when any modal open ── */
   useEffect(() => {
     const anyOpen = editModalOpen || !!deleteTarget;
     document.body.style.overflow = anyOpen ? "hidden" : "";
@@ -59,11 +56,8 @@ const ReportsView = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+  useEffect(() => { fetchReports(); }, [fetchReports]);
 
-  /* ── Edit handlers ── */
   const openEdit = (report) => {
     setEditTarget(report);
     setEditForm({
@@ -78,9 +72,7 @@ const ReportsView = () => {
     setEditModalOpen(true);
   };
 
-  const handleEditChange = (e) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
+  const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -91,14 +83,10 @@ const ReportsView = () => {
       await fetchReports();
       setTimeout(() => setEditModalOpen(false), 1200);
     } catch (err) {
-      setEditStatus({
-        type: "error",
-        msg: err.response?.data?.message || "Failed to update report.",
-      });
+      setEditStatus({ type: "error", msg: err.response?.data?.message || "Failed to update report." });
     }
   };
 
-  /* ── Delete handlers ── */
   const handleDelete = async () => {
     setDeleteStatus({ type: "loading", msg: "Deleting..." });
     try {
@@ -107,14 +95,10 @@ const ReportsView = () => {
       await fetchReports();
       setTimeout(() => setDeleteTarget(null), 900);
     } catch (err) {
-      setDeleteStatus({
-        type: "error",
-        msg: err.response?.data?.message || "Failed to delete report.",
-      });
+      setDeleteStatus({ type: "error", msg: err.response?.data?.message || "Failed to delete report." });
     }
   };
 
-  /* ── PDF Export ── */
   const handleExport = (report) => {
     const printWindow = window.open("", "_blank");
     printWindow.document.write(`
@@ -143,7 +127,7 @@ const ReportsView = () => {
               <tr><th>Metric</th><th>Value</th></tr>
             </thead>
             <tbody>
-              <tr><td>Gross Sales</td><td>₱ ${fmt(report.gross_sales)}</td></tr>
+              <tr><td>Intake</td><td>${fmt(report.gross_sales)} kg</td></tr>
               <tr><td>Beginning Inventory</td><td>${fmt(report.beginning_inventory)} kg</td></tr>
               <tr><td>Ending Inventory</td><td>${fmt(report.ending_inventory)} kg</td></tr>
               <tr><td>Deliveries</td><td>${fmt(report.deliveries)} kg</td></tr>
@@ -187,7 +171,7 @@ const ReportsView = () => {
                 {fmtDate(report.start_date)} — {fmtDate(report.end_date)}
               </p>
               <ul className="report-card-details">
-                <li>Gross Sales: <strong>₱ {fmt(report.gross_sales)}</strong></li>
+                <li>Intake: <strong>{fmt(report.gross_sales)} kg</strong></li>
                 <li>Beginning Inventory: <strong>{fmt(report.beginning_inventory)} kg</strong></li>
                 <li>Ending Inventory: <strong>{fmt(report.ending_inventory)} kg</strong></li>
                 <li>Deliveries: <strong>{fmt(report.deliveries)} kg</strong></li>
@@ -196,31 +180,16 @@ const ReportsView = () => {
               </ul>
 
               <div className="report-card-actions">
-                <button
-                  className="report-action-btn report-action-btn--edit"
-                  onClick={(e) => { createRipple(e); openEdit(report); }}
-                >
-                  Edit
-                </button>
-                <button
-                  className="report-action-btn report-action-btn--export"
-                  onClick={(e) => { createRipple(e); handleExport(report); }}
-                >
-                  Export PDF
-                </button>
-                <button
-                  className="report-action-btn report-action-btn--delete"
-                  onClick={(e) => { createRipple(e); setDeleteTarget(report); setDeleteStatus({ type: "", msg: "" }); }}
-                >
-                  Delete
-                </button>
+                <button className="report-action-btn report-action-btn--edit" onClick={(e) => { createRipple(e); openEdit(report); }}>Edit</button>
+                <button className="report-action-btn report-action-btn--export" onClick={(e) => { createRipple(e); handleExport(report); }}>Export PDF</button>
+                <button className="report-action-btn report-action-btn--delete" onClick={(e) => { createRipple(e); setDeleteTarget(report); setDeleteStatus({ type: "", msg: "" }); }}>Delete</button>
               </div>
             </div>
           ))
         )}
       </div>
 
-      {/* ── Edit Modal ── */}
+      {/* Edit Modal */}
       {editModalOpen && editTarget && (
         <div className="modal-overlay" onClick={() => setEditModalOpen(false)}>
           <div className="rpt-modal" onClick={(e) => e.stopPropagation()}>
@@ -236,7 +205,7 @@ const ReportsView = () => {
             )}
             <form onSubmit={handleEditSubmit} className="rpt-modal-form">
               {[
-                { name: "gross_sales",         label: "Gross Sales (₱)" },
+                { name: "gross_sales",         label: "Intake (kg)" },
                 { name: "beginning_inventory", label: "Beginning Inventory (kg)" },
                 { name: "ending_inventory",    label: "Ending Inventory (kg)" },
                 { name: "deliveries",          label: "Deliveries (kg)" },
@@ -245,22 +214,10 @@ const ReportsView = () => {
               ].map(({ name, label }) => (
                 <div className="rpt-modal-input-group" key={name}>
                   <label>{label}</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    name={name}
-                    value={editForm[name]}
-                    onChange={handleEditChange}
-                    required
-                  />
+                  <input type="number" step="0.01" name={name} value={editForm[name]} onChange={handleEditChange} required />
                 </div>
               ))}
-              <button
-                type="submit"
-                className="rpt-modal-submit-btn"
-                onClick={createRipple}
-                disabled={editStatus.type === "loading"}
-              >
+              <button type="submit" className="rpt-modal-submit-btn" onClick={createRipple} disabled={editStatus.type === "loading"}>
                 {editStatus.type === "loading" ? "Saving..." : "Save Changes"}
               </button>
             </form>
@@ -268,7 +225,7 @@ const ReportsView = () => {
         </div>
       )}
 
-      {/* ── Delete Confirm Modal ── */}
+      {/* Delete Modal */}
       {deleteTarget && (
         <div className="modal-overlay" onClick={() => setDeleteTarget(null)}>
           <div className="rpt-modal rpt-modal--confirm" onClick={(e) => e.stopPropagation()}>
@@ -285,17 +242,8 @@ const ReportsView = () => {
               <div className={`rpt-modal-status ${deleteStatus.type}`}>{deleteStatus.msg}</div>
             )}
             <div className="rpt-modal-confirm-actions">
-              <button
-                className="rpt-modal-cancel-btn"
-                onClick={() => setDeleteTarget(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="rpt-modal-delete-btn"
-                onClick={handleDelete}
-                disabled={deleteStatus.type === "loading"}
-              >
+              <button className="rpt-modal-cancel-btn" onClick={() => setDeleteTarget(null)}>Cancel</button>
+              <button className="rpt-modal-delete-btn" onClick={handleDelete} disabled={deleteStatus.type === "loading"}>
                 {deleteStatus.type === "loading" ? "Deleting..." : "Delete"}
               </button>
             </div>

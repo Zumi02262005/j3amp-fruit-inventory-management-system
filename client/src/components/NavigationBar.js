@@ -229,6 +229,14 @@ const NavigationBar = () => {
                 <span>Logs</span>
               </NavLink>
             </li>
+            <li>
+              <NavLink to="/batch-write-off">
+                <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
+                  <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H7L6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>BO</span>
+              </NavLink>
+            </li>
           </>
         )}
       </ul>

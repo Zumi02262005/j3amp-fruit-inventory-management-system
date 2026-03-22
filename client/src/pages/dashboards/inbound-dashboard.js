@@ -28,6 +28,7 @@ const InboundDashboard = () => {
   const [totalCategories, setTotalCategories] = useState(null);
   const [lowStockCount, setLowStockCount] = useState(null);
   const [recentReceipts, setRecentReceipts] = useState([]);
+  const [noStockCount, setNoStockCount] = useState(null);
 
   const createRipple = useRipple();
 
@@ -72,10 +73,20 @@ const InboundDashboard = () => {
       }
     };
 
+    const fetchNoStock = async () => {
+      try {
+        const response = await inventoryAPI.getNoStockCount();
+        setNoStockCount(response.data.data);
+      } catch (err) {
+        setNoStockCount("0");
+      }
+    };
+
     fetchTotalStock();
     fetchCategories();
     fetchLowStock();
     fetchRecentReceipts();
+    fetchNoStock();
   }, []);
 
   const handleReceiveStock = () => navigate("/receive-stock");
@@ -105,11 +116,15 @@ const InboundDashboard = () => {
                 {totalCategories !== null ? totalCategories : "..."}
               </p>
             </div>
-            <div className="expiring-section">
-              <p className="expiring">Low Stock: </p>
-              <p className="expiring-count">
+            <div className="categories-section">
+              <p className="categories">Low Stock: </p>
+              <p className="categories-count">
                 {lowStockCount !== null ? lowStockCount : "..."}
               </p>
+            </div>
+            <div className="categories-section">
+              <p className="categories">No Stock: </p>
+              <p className="categories-count">{noStockCount !== null ? noStockCount : 0}</p>
             </div>
           </div>
         </div>

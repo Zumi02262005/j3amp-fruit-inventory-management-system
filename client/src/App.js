@@ -21,6 +21,7 @@ import ReportsHome from "./pages/reports/reports-home";
 import ReportsGenerate from "./pages/reports/reports-generate";
 import ReportsView from "./pages/reports/reports-view";
 import "./App.css";
+import BatchWriteOff from "./pages/transactions/BatchWriteOff";
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
           <Route path="/reports" element={<ProtectedRoute role="admin"><ReportsHome /></ProtectedRoute>} />
           <Route path="/reports/generate" element={<ProtectedRoute role="admin"><ReportsGenerate /></ProtectedRoute>} />
           <Route path="/reports/view" element={<ProtectedRoute role="admin"><ReportsView /></ProtectedRoute>} />
+          <Route path="/batch-write-off" element={<ProtectedRoute allowedRoles={["outbound"]}><BatchWriteOff /></ProtectedRoute>} />
 
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />

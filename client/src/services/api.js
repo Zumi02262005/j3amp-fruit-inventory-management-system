@@ -58,6 +58,7 @@ export const inventoryAPI = {
   updateInventoryItem: (sku, data) => api.put(`/inventory/${sku}`, data),
   deactivateSku: (sku) => api.patch(`/inventory/${sku}/deactivate`),
   updateBatch: (batchId, data) => api.patch(`/inventory/batches/${batchId}`, data),
+  writeOffBatches: (data) => api.patch("/inventory/write-off", data),
 };
 
 // ---- Transaction API ----

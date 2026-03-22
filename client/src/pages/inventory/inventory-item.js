@@ -24,6 +24,7 @@ const InventoryItem = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [batches, setBatches] = useState([]);
+  const [inventoryInfo, setInventoryInfo] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const [showEdit, setShowEdit] = useState(false);
@@ -53,42 +54,46 @@ const InventoryItem = () => {
     try {
       const response = await inventoryAPI.getBatches(sku);
       setBatches(response.data.data);
+
+      // If batches exist use them for product info
+      if (response.data.data.length > 0) {
+        setInventoryInfo(response.data.data[0]);
+      } else {
+        // No active batches — fetch inventory info directly from inventory list
+        const invResponse = await inventoryAPI.getInventory();
+        const item = invResponse.data.data.find((i) => i.sku === sku);
+        if (item) setInventoryInfo(item);
+      }
     } catch (err) {
       console.error("Failed to fetch batches", err);
     } finally {
       setLoading(false);
     }
-  }, [sku]); // Dependency of the callback
+  }, [sku]);
 
-  // Now you can safely include it in the dependency array
   useEffect(() => {
     fetchBatchData();
   }, [fetchBatchData]);
 
-  // Lock body scroll when any modal is open
   useEffect(() => {
     const isAnyModalOpen = showEdit || showEditBatch || showDeactivate;
     document.body.style.overflow = isAnyModalOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [showEdit, showEditBatch, showDeactivate]);
 
   const openEditModal = () => {
-    if (!productInfo) return;
+    if (!inventoryInfo) return;
     setEditForm({
-      product_name: productInfo.product_name || "",
-      category: productInfo.category || "",
-      supplier: productInfo.supplier || "",
-      reorder_point: productInfo.reorder_point || "50",
+      product_name: inventoryInfo.product_name || "",
+      category: inventoryInfo.category || "",
+      supplier: inventoryInfo.supplier || "",
+      reorder_point: inventoryInfo.reorder_point || "50",
     });
     setEditStatus({ type: "", msg: "" });
     setShowEdit(true);
   };
 
-  const handleEditChange = (e) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
+  const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -115,9 +120,7 @@ const InventoryItem = () => {
     setShowEditBatch(true);
   };
 
-  const handleBatchChange = (e) => {
-    setBatchForm({ ...batchForm, [e.target.name]: e.target.value });
-  };
+  const handleBatchChange = (e) => setBatchForm({ ...batchForm, [e.target.name]: e.target.value });
 
   const handleBatchSubmit = async (e) => {
     e.preventDefault();
@@ -149,18 +152,16 @@ const InventoryItem = () => {
     </div>
   );
 
-  const productInfo = batches.length > 0 ? batches[0] : null;
-  const totalStock = batches.reduce(
-    (sum, batch) => sum + parseFloat(batch.remaining_quantity || 0),
-    0,
+  // If no inventory info found at all
+  if (!inventoryInfo) return (
+    <div className="inventory-item-container page-with-navbar">
+      <div className="error-bar">SKU not found</div>
+    </div>
   );
 
-  if (batches.length === 0)
-    return (
-      <div className="inventory-item-container page-with-navbar">
-        <div className="error-bar">No active batches found</div>
-      </div>
-    );
+  const totalStock = batches.reduce(
+    (sum, batch) => sum + parseFloat(batch.remaining_quantity || 0), 0
+  );
 
   return (
     <div className="inventory-item-container page-with-navbar">
@@ -176,9 +177,9 @@ const InventoryItem = () => {
         <div className="general-details-container">
           <p>SKU: {sku}</p>
           <ul className="general-details-list">
-            <li>{productInfo?.product_name}</li>
-            <li><strong>Category: </strong>{productInfo?.category}</li>
-            <li><strong>Supplier: </strong>{productInfo?.supplier}</li>
+            <li>{inventoryInfo?.product_name}</li>
+            <li><strong>Category: </strong>{inventoryInfo?.category}</li>
+            <li><strong>Supplier: </strong>{inventoryInfo?.supplier}</li>
           </ul>
         </div>
 
@@ -204,11 +205,15 @@ const InventoryItem = () => {
         <div className="stock-details-container">
           <p>Current Stock Summary</p>
           <ul className="stock-details-list">
-            <li><strong>Total Quantity: </strong>{totalStock.toFixed(2)}</li>
-            <li><strong>Reorder Point: </strong>{parseFloat(productInfo?.reorder_point).toFixed(2)}</li>
+            <li><strong>Total Quantity: </strong>{totalStock.toFixed(2)} kg</li>
+            <li><strong>Reorder Point: </strong>{parseFloat(inventoryInfo?.reorder_point || 0).toFixed(2)} kg</li>
             <li>
               <strong>Status: </strong>
-              {totalStock <= productInfo?.reorder_point ? "Low Stock Warning" : "Good Stock Level"}
+              {totalStock === 0
+                ? "No Stock"
+                : totalStock <= inventoryInfo?.reorder_point
+                ? "Low Stock Warning"
+                : "Good Stock Level"}
             </li>
           </ul>
         </div>
@@ -217,25 +222,31 @@ const InventoryItem = () => {
         <div className="batch-details">
           <p className="batch-details-label">Batch Details</p>
           <div className="batch-details-list">
-            {batches.map((batch) => (
-              <div className="batch-details-card" key={batch.batch_id}>
-                <p className="batch-details-id"># {batch.batch_id}</p>
-                <ul className="batch-details-info">
-                  <li><strong>Quantity: </strong>{parseFloat(batch.remaining_quantity).toFixed(2)} kg</li>
-                  <li><strong>Received date: </strong>{new Date(batch.received_date).toLocaleDateString()}</li>
-                  <li><strong>Expires: </strong>{new Date(batch.expiration_date).toLocaleDateString()}</li>
-                  <li><strong>Supplier: </strong>{batch.supplier_name}</li>
-                  <li><strong>Received by: </strong>{batch.received_by}</li>
-                </ul>
-                {user?.role === "admin" && (
-                  <div className="batch-card-actions">
-                    <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>
-                      Edit Batch →
-                    </button>
-                  </div>
-                )}
+            {batches.length === 0 ? (
+              <div className="batch-details-card">
+                <p style={{ color: "#999", textAlign: "center" }}>No active batches</p>
               </div>
-            ))}
+            ) : (
+              batches.map((batch) => (
+                <div className="batch-details-card" key={batch.batch_id}>
+                  <p className="batch-details-id"># {batch.batch_id}</p>
+                  <ul className="batch-details-info">
+                    <li><strong>Quantity: </strong>{parseFloat(batch.remaining_quantity).toFixed(2)} kg</li>
+                    <li><strong>Received date: </strong>{new Date(batch.received_date).toLocaleDateString()}</li>
+                    <li><strong>Expires: </strong>{new Date(batch.expiration_date).toLocaleDateString()}</li>
+                    <li><strong>Supplier: </strong>{batch.supplier_name}</li>
+                    <li><strong>Received by: </strong>{batch.received_by}</li>
+                  </ul>
+                  {user?.role === "admin" && (
+                    <div className="batch-card-actions">
+                      <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>
+                        Edit Batch →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -268,9 +279,7 @@ const InventoryItem = () => {
                 <label>Reorder Point (kg)</label>
                 <input type="number" name="reorder_point" value={editForm.reorder_point} onChange={handleEditChange} step="0.01" min="0" required />
               </div>
-              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>
-                Save Changes
-              </button>
+              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>Save Changes</button>
             </form>
           </div>
         </div>
@@ -290,45 +299,23 @@ const InventoryItem = () => {
             <form onSubmit={handleBatchSubmit} className="inv-modal-form">
               <div className="inv-modal-input-group">
                 <label>Remaining Quantity (kg)</label>
-                <input
-                  type="number"
-                  name="remaining_quantity"
-                  value={batchForm.remaining_quantity}
-                  onChange={handleBatchChange}
-                  step="0.01"
-                  min="0"
-                  required
-                />
+                <input type="number" name="remaining_quantity" value={batchForm.remaining_quantity} onChange={handleBatchChange} step="0.01" min="0" required />
               </div>
               <div className="inv-modal-input-group">
                 <label>Expiration Date</label>
-                <input
-                  type="date"
-                  name="expiration_date"
-                  value={batchForm.expiration_date}
-                  onChange={handleBatchChange}
-                  required
-                />
+                <input type="date" name="expiration_date" value={batchForm.expiration_date} onChange={handleBatchChange} required />
               </div>
               <div className="inv-modal-input-group">
                 <label>Supplier</label>
-                <input
-                  type="text"
-                  name="supplier_name"
-                  value={batchForm.supplier_name}
-                  onChange={handleBatchChange}
-                  required
-                />
+                <input type="text" name="supplier_name" value={batchForm.supplier_name} onChange={handleBatchChange} required />
               </div>
-              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>
-                Save Changes
-              </button>
+              <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>Save Changes</button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Deactivate Confirmation Modal */}
+      {/* Deactivate Modal */}
       {showDeactivate && (
         <div className="modal-overlay" onClick={() => setShowDeactivate(false)}>
           <div className="inv-modal" onClick={(e) => e.stopPropagation()}>
@@ -341,7 +328,7 @@ const InventoryItem = () => {
             )}
             <div className="inv-modal-form">
               <p style={{ color: "#000", fontSize: "0.9rem" }}>
-                Are you sure you want to deactivate <strong>{productInfo?.product_name}</strong> ({sku})?
+                Are you sure you want to deactivate <strong>{inventoryInfo?.product_name}</strong> ({sku})?
                 It will no longer appear in the inventory.
               </p>
               <button className="inv-modal-deactivate-btn" onClick={(e) => { createRipple(e); handleDeactivate(); }}>

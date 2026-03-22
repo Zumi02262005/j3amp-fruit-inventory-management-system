@@ -405,6 +405,79 @@ const updateBatch = async (req, res) => {
   }
 };
 
+// ---- Get count of SKUs with zero stock ----
+const getNoStockCount = async (req, res) => {
+  try {
+    const [[{ no_stock_count }]] = await promisePool.execute(
+      `SELECT COUNT(*) AS no_stock_count FROM (
+        SELECT inventory.sku,
+        COALESCE(SUM(batches.remaining_quantity), 0) AS total_stock
+        FROM inventory
+        LEFT JOIN batches ON inventory.sku = batches.sku AND batches.status = 'active'
+        WHERE inventory.status = 'active'
+        GROUP BY inventory.sku
+        HAVING total_stock = 0
+      ) AS no_stock_items`
+    );
+    res.json({ success: true, data: no_stock_count });
+  } catch (error) {
+    console.error("No stock count error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+// ---- Write off expired batches (outbound) ----
+const writeOffBatches = async (req, res) => {
+  const { batch_ids } = req.body;
+  const userId = req.user.userId;
+
+  if (!batch_ids || !Array.isArray(batch_ids) || batch_ids.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "batch_ids array is required",
+    });
+  }
+
+  try {
+    const placeholders = batch_ids.map(() => "?").join(", ");
+
+    // Verify all batches are expired
+    const [batches] = await promisePool.execute(
+      `SELECT batch_id, sku, remaining_quantity FROM batches 
+       WHERE batch_id IN (${placeholders}) AND status = 'expired'`,
+      batch_ids
+    );
+
+    if (batches.length !== batch_ids.length) {
+      return res.status(400).json({
+        success: false,
+        message: "Some batches are not expired or do not exist.",
+      });
+    }
+
+    // Set remaining_quantity = 0 and status = depleted
+    await promisePool.execute(
+      `UPDATE batches SET remaining_quantity = 0, status = 'depleted'
+       WHERE batch_id IN (${placeholders})`,
+      batch_ids
+    );
+
+    await logActivity(
+      userId,
+      "BATCH_WRITTEN_OFF",
+      `Outbound wrote off ${batch_ids.length} expired batch(es): ${batch_ids.join(", ")}`
+    );
+
+    res.json({
+      success: true,
+      message: `${batch_ids.length} batch(es) written off successfully`,
+    });
+  } catch (error) {
+    console.error("Write off batches error: ", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
 module.exports = {
   viewInventory,
   getInventoryTotal,
@@ -424,4 +497,6 @@ module.exports = {
   updateInventoryItem,
   deactivateSku,
   updateBatch,
+  getNoStockCount,
+  writeOffBatches
 };

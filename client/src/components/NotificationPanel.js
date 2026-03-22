@@ -1,36 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
 import { alertAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "./NotificationPanel.css";
 import notification_bell from "../assets/icons/notification_bell.svg";
 
 const NotificationPanel = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
   const [isOpen, setIsOpen] = useState(false);
   const [alerts, setAlerts] = useState([]);
   const [alertCount, setAlertCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const panelRef = useRef(null);
 
-  // Fetch alert count on mount and every 30 seconds
   useEffect(() => {
     fetchAlertCount();
     const interval = setInterval(fetchAlertCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Lock / unlock body scroll when panel opens or closes
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
     }
-    // Cleanup on unmount
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Close panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
@@ -68,6 +66,7 @@ const NotificationPanel = () => {
     if (opening) fetchAlerts();
   };
 
+  // Admin only — clears for everyone since alert record is shared
   const handleClearAlert = async (alertId) => {
     try {
       await alertAPI.clearAlert(alertId);
@@ -75,6 +74,16 @@ const NotificationPanel = () => {
       setAlertCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error("Failed to clear alert:", err);
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await alertAPI.clearAllAlerts();
+      setAlerts([]);
+      setAlertCount(0);
+    } catch (err) {
+      console.error("Failed to clear all alerts:", err);
     }
   };
 
@@ -110,29 +119,23 @@ const NotificationPanel = () => {
         )}
       </button>
 
-      {/* Backdrop — mobile only, fades in behind the panel */}
+      {/* Backdrop */}
       <div
         className={`notification-backdrop ${isOpen ? "backdrop-visible" : ""}`}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
-      {/* Panel — always mounted, animated via CSS */}
+      {/* Panel */}
       <div
         className={`notification-panel ${isOpen ? "panel-open" : "panel-closed"}`}
         aria-hidden={!isOpen}
       >
         <div className="notification-panel-header">
           <h3>Notifications</h3>
-          {alerts.length > 0 && (
-            <button
-              className="clear-all-btn"
-              onClick={async () => {
-                await alertAPI.clearAllAlerts();
-                setAlerts([]);
-                setAlertCount(0);
-              }}
-            >
+          {/* Clear all — admin only */}
+          {isAdmin && alerts.length > 0 && (
+            <button className="clear-all-btn" onClick={handleClearAll}>
               Clear all
             </button>
           )}
@@ -165,13 +168,16 @@ const NotificationPanel = () => {
                     </p>
                   </div>
                 </div>
-                <button
-                  className="notification-clear-btn"
-                  onClick={() => handleClearAlert(alert.alert_id)}
-                  aria-label="Dismiss notification"
-                >
-                  ✕
-                </button>
+                {/* Clear button — admin only */}
+                {isAdmin && (
+                  <button
+                    className="notification-clear-btn"
+                    onClick={() => handleClearAlert(alert.alert_id)}
+                    aria-label="Dismiss notification"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             ))
           )}
