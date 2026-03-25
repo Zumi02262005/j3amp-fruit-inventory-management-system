@@ -35,7 +35,6 @@ body {
   word-wrap: break-word;
 }
 
-/* ── Back link animations ── */
 .back-to-inventory-link {
   display: inline-block;
   margin: clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 4vw, 2rem) 0;
@@ -93,7 +92,6 @@ body {
   padding-left: 1.5rem;
 }
 
-/* ── Admin action cards (Edit Info / Deactivate SKU) ── */
 .admin-item-actions {
   display: flex;
   flex-direction: row;
@@ -102,7 +100,6 @@ body {
   margin-bottom: 1.5rem;
 }
 
-/* ── Button animations ── */
 @keyframes ripple {
   from { transform: scale(0); opacity: 0.5; }
   to   { transform: scale(4); opacity: 0; }
@@ -253,7 +250,6 @@ body {
   margin-bottom: 0.25rem;
 }
 
-/* ── Batch card bottom row ── */
 .batch-card-actions {
   display: flex;
   justify-content: flex-end;
@@ -261,7 +257,6 @@ body {
   margin-top: 0.5rem;
 }
 
-/* ── Edit Batch link — animated ── */
 .edit-batch-btn {
   background: none;
   border: none;
@@ -298,7 +293,6 @@ body {
   transform: scale(0.95);
 }
 
-/* ── Modal animations ── */
 @keyframes modalSpring {
   0%   { opacity: 0; transform: scale(0.82) translateY(24px); }
   60%  { transform: scale(1.03) translateY(-4px); }
@@ -411,7 +405,6 @@ body {
   border-color: #ff6200;
 }
 
-/* ── Modal buttons with animations ── */
 .inv-modal-submit-btn,
 .inv-modal-deactivate-btn,
 .inv-modal-cancel-btn {

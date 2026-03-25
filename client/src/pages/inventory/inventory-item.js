@@ -1,12 +1,14 @@
+// inventory-item.jsx
+// This page displays the details and the batches of a specific SKU
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./inventory-item.css";
 
-/* ── Ripple helper ── */
+// Hook to create a material-style ripple effect on buttons
 const useRipple = () => {
-  const createRipple = useCallback((e) => {
+  return useCallback((e) => {
     const btn = e.currentTarget;
     const circle = document.createElement("span");
     const rect = btn.getBoundingClientRect();
@@ -16,50 +18,63 @@ const useRipple = () => {
     btn.appendChild(circle);
     circle.addEventListener("animationend", () => circle.remove());
   }, []);
-  return createRipple;
 };
+
+// Formatting and logic helpers
+const fmt = (val) => parseFloat(val || 0).toFixed(2);
+const fmtDate = (d) => new Date(d).toLocaleDateString();
+const getStockStatus = (total, reorderPoint) => {
+  if (total === 0) return "No Stock";
+  if (total <= (reorderPoint || 0)) return "Low Stock Warning";
+  return "Good Stock Level";
+};
+
+// Form Configurations
+const EDIT_INFO_FIELDS = [
+  { name: "product_name", label: "Product Name", type: "text" },
+  { name: "category", label: "Category", type: "text" },
+  { name: "supplier", label: "Supplier", type: "text" },
+  { name: "reorder_point", label: "Reorder Point (kg)", type: "number", step: "0.01", min: "0" },
+];
+
+const EDIT_BATCH_FIELDS = [
+  { name: "remaining_quantity", label: "Remaining Quantity (kg)", type: "number", step: "0.01", min: "0" },
+  { name: "expiration_date", label: "Expiration Date", type: "date" },
+  { name: "supplier_name", label: "Supplier", type: "text" },
+];
 
 const InventoryItem = () => {
   const { sku } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const createRipple = useRipple();
+
   const [batches, setBatches] = useState([]);
   const [inventoryInfo, setInventoryInfo] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Modal & Form States
   const [showEdit, setShowEdit] = useState(false);
-  const [editForm, setEditForm] = useState({
-    product_name: "",
-    category: "",
-    supplier: "",
-    reorder_point: "",
-  });
+  const [editForm, setEditForm] = useState({ product_name: "", category: "", supplier: "", reorder_point: "" });
   const [editStatus, setEditStatus] = useState({ type: "", msg: "" });
 
   const [showEditBatch, setShowEditBatch] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
-  const [batchForm, setBatchForm] = useState({
-    remaining_quantity: "",
-    expiration_date: "",
-    supplier_name: "",
-  });
+  const [batchForm, setBatchForm] = useState({ remaining_quantity: "", expiration_date: "", supplier_name: "" });
   const [batchStatus, setBatchStatus] = useState({ type: "", msg: "" });
 
   const [showDeactivate, setShowDeactivate] = useState(false);
   const [deactivateStatus, setDeactivateStatus] = useState({ type: "", msg: "" });
-
-  const createRipple = useRipple();
 
   const fetchBatchData = useCallback(async () => {
     try {
       const response = await inventoryAPI.getBatches(sku);
       setBatches(response.data.data);
 
-      // If batches exist use them for product info
       if (response.data.data.length > 0) {
         setInventoryInfo(response.data.data[0]);
       } else {
-        // No active batches — fetch inventory info directly from inventory list
+        // Fallback: fetch inventory info directly from inventory list if no active batches
         const invResponse = await inventoryAPI.getInventory();
         const item = invResponse.data.data.find((i) => i.sku === sku);
         if (item) setInventoryInfo(item);
@@ -71,16 +86,15 @@ const InventoryItem = () => {
     }
   }, [sku]);
 
-  useEffect(() => {
-    fetchBatchData();
-  }, [fetchBatchData]);
+  useEffect(() => { fetchBatchData(); }, [fetchBatchData]);
 
+  // Lock body scroll when any modal is open
   useEffect(() => {
-    const isAnyModalOpen = showEdit || showEditBatch || showDeactivate;
-    document.body.style.overflow = isAnyModalOpen ? "hidden" : "";
+    document.body.style.overflow = (showEdit || showEditBatch || showDeactivate) ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [showEdit, showEditBatch, showDeactivate]);
 
+  // --- Handlers for Item Info ---
   const openEditModal = () => {
     if (!inventoryInfo) return;
     setEditForm({
@@ -92,8 +106,6 @@ const InventoryItem = () => {
     setEditStatus({ type: "", msg: "" });
     setShowEdit(true);
   };
-
-  const handleEditChange = (e) => setEditForm({ ...editForm, [e.target.name]: e.target.value });
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
@@ -108,19 +120,17 @@ const InventoryItem = () => {
     }
   };
 
+  // --- Handlers for Batches ---
   const openEditBatchModal = (batch) => {
     setSelectedBatch(batch);
-    const expDate = new Date(batch.expiration_date).toISOString().split("T")[0];
     setBatchForm({
-      remaining_quantity: parseFloat(batch.remaining_quantity).toFixed(2),
-      expiration_date: expDate,
+      remaining_quantity: fmt(batch.remaining_quantity),
+      expiration_date: new Date(batch.expiration_date).toISOString().split("T")[0],
       supplier_name: batch.supplier_name || "",
     });
     setBatchStatus({ type: "", msg: "" });
     setShowEditBatch(true);
   };
-
-  const handleBatchChange = (e) => setBatchForm({ ...batchForm, [e.target.name]: e.target.value });
 
   const handleBatchSubmit = async (e) => {
     e.preventDefault();
@@ -135,6 +145,7 @@ const InventoryItem = () => {
     }
   };
 
+  // --- Handlers for Deactivation ---
   const handleDeactivate = async () => {
     setDeactivateStatus({ type: "loading", msg: "Deactivating..." });
     try {
@@ -146,33 +157,24 @@ const InventoryItem = () => {
     }
   };
 
-  if (loading) return (
-    <div className="inventory-item-container page-with-navbar">
-      <div className="loader">Loading item details...</div>
-    </div>
-  );
+  // Generic change handler for forms
+  const handleChange = (setter) => (e) => setter((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  // If no inventory info found at all
-  if (!inventoryInfo) return (
-    <div className="inventory-item-container page-with-navbar">
-      <div className="error-bar">SKU not found</div>
-    </div>
-  );
+  // --- Render ---
+  if (loading) return <div className="inventory-item-container page-with-navbar"><div className="loader">Loading item details...</div></div>;
+  if (!inventoryInfo) return <div className="inventory-item-container page-with-navbar"><div className="error-bar">SKU not found</div></div>;
 
-  const totalStock = batches.reduce(
-    (sum, batch) => sum + parseFloat(batch.remaining_quantity || 0), 0
-  );
+  const totalStock = batches.reduce((sum, batch) => sum + parseFloat(batch.remaining_quantity || 0), 0);
 
   return (
     <div className="inventory-item-container page-with-navbar">
       <p className="inventory-item-label">Inventory</p>
+      
       <div className="back-to-inventory">
-        <span className="back-to-inventory-link" onClick={() => navigate(-1)}>
-          ← Back to inventory
-        </span>
+        <span className="back-to-inventory-link" onClick={() => navigate(-1)}>← Back to inventory</span>
       </div>
+      
       <div className="inventory-item-content">
-
         {/* General Details */}
         <div className="general-details-container">
           <p>SKU: {sku}</p>
@@ -186,16 +188,10 @@ const InventoryItem = () => {
         {/* Admin Actions */}
         {user?.role === "admin" && (
           <div className="admin-item-actions">
-            <button
-              className="admin-action-card"
-              onClick={(e) => { createRipple(e); openEditModal(); }}
-            >
+            <button className="admin-action-card" onClick={(e) => { createRipple(e); openEditModal(); }}>
               <p className="admin-action-card-text"><strong>Edit Info</strong></p>
             </button>
-            <button
-              className="admin-action-card deactivate-card"
-              onClick={(e) => { createRipple(e); setShowDeactivate(true); }}
-            >
+            <button className="admin-action-card deactivate-card" onClick={(e) => { createRipple(e); setShowDeactivate(true); }}>
               <p className="admin-action-card-text"><strong>Deactivate SKU</strong></p>
             </button>
           </div>
@@ -205,16 +201,9 @@ const InventoryItem = () => {
         <div className="stock-details-container">
           <p>Current Stock Summary</p>
           <ul className="stock-details-list">
-            <li><strong>Total Quantity: </strong>{totalStock.toFixed(2)} kg</li>
-            <li><strong>Reorder Point: </strong>{parseFloat(inventoryInfo?.reorder_point || 0).toFixed(2)} kg</li>
-            <li>
-              <strong>Status: </strong>
-              {totalStock === 0
-                ? "No Stock"
-                : totalStock <= inventoryInfo?.reorder_point
-                ? "Low Stock Warning"
-                : "Good Stock Level"}
-            </li>
+            <li><strong>Total Quantity: </strong>{fmt(totalStock)} kg</li>
+            <li><strong>Reorder Point: </strong>{fmt(inventoryInfo?.reorder_point)} kg</li>
+            <li><strong>Status: </strong>{getStockStatus(totalStock, inventoryInfo?.reorder_point)}</li>
           </ul>
         </div>
 
@@ -223,25 +212,21 @@ const InventoryItem = () => {
           <p className="batch-details-label">Batch Details</p>
           <div className="batch-details-list">
             {batches.length === 0 ? (
-              <div className="batch-details-card">
-                <p style={{ color: "#999", textAlign: "center" }}>No active batches</p>
-              </div>
+              <div className="batch-details-card"><p style={{ color: "#999", textAlign: "center" }}>No active batches</p></div>
             ) : (
               batches.map((batch) => (
                 <div className="batch-details-card" key={batch.batch_id}>
                   <p className="batch-details-id"># {batch.batch_id}</p>
                   <ul className="batch-details-info">
-                    <li><strong>Quantity: </strong>{parseFloat(batch.remaining_quantity).toFixed(2)} kg</li>
-                    <li><strong>Received date: </strong>{new Date(batch.received_date).toLocaleDateString()}</li>
-                    <li><strong>Expires: </strong>{new Date(batch.expiration_date).toLocaleDateString()}</li>
+                    <li><strong>Quantity: </strong>{fmt(batch.remaining_quantity)} kg</li>
+                    <li><strong>Received date: </strong>{fmtDate(batch.received_date)}</li>
+                    <li><strong>Expires: </strong>{fmtDate(batch.expiration_date)}</li>
                     <li><strong>Supplier: </strong>{batch.supplier_name}</li>
                     <li><strong>Received by: </strong>{batch.received_by}</li>
                   </ul>
                   {user?.role === "admin" && (
                     <div className="batch-card-actions">
-                      <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>
-                        Edit Batch →
-                      </button>
+                      <button className="edit-batch-btn" onClick={() => openEditBatchModal(batch)}>Edit Batch →</button>
                     </div>
                   )}
                 </div>
@@ -251,6 +236,8 @@ const InventoryItem = () => {
         </div>
       </div>
 
+      {/* --- Modals --- */}
+      
       {/* Edit Info Modal */}
       {showEdit && (
         <div className="modal-overlay" onClick={() => setShowEdit(false)}>
@@ -259,26 +246,14 @@ const InventoryItem = () => {
               <h3>Edit Info — {sku}</h3>
               <button className="inv-modal-close" onClick={() => setShowEdit(false)}>✕</button>
             </div>
-            {editStatus.msg && (
-              <div className={`inv-modal-status ${editStatus.type}`}>{editStatus.msg}</div>
-            )}
+            {editStatus.msg && <div className={`inv-modal-status ${editStatus.type}`}>{editStatus.msg}</div>}
             <form onSubmit={handleEditSubmit} className="inv-modal-form">
-              <div className="inv-modal-input-group">
-                <label>Product Name</label>
-                <input type="text" name="product_name" value={editForm.product_name} onChange={handleEditChange} required />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Category</label>
-                <input type="text" name="category" value={editForm.category} onChange={handleEditChange} required />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Supplier</label>
-                <input type="text" name="supplier" value={editForm.supplier} onChange={handleEditChange} required />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Reorder Point (kg)</label>
-                <input type="number" name="reorder_point" value={editForm.reorder_point} onChange={handleEditChange} step="0.01" min="0" required />
-              </div>
+              {EDIT_INFO_FIELDS.map(({ name, label, type, step, min }) => (
+                <div className="inv-modal-input-group" key={name}>
+                  <label>{label}</label>
+                  <input type={type} name={name} value={editForm[name]} onChange={handleChange(setEditForm)} step={step} min={min} required />
+                </div>
+              ))}
               <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>Save Changes</button>
             </form>
           </div>
@@ -293,22 +268,14 @@ const InventoryItem = () => {
               <h3>Edit Batch #{selectedBatch.batch_id}</h3>
               <button className="inv-modal-close" onClick={() => setShowEditBatch(false)}>✕</button>
             </div>
-            {batchStatus.msg && (
-              <div className={`inv-modal-status ${batchStatus.type}`}>{batchStatus.msg}</div>
-            )}
+            {batchStatus.msg && <div className={`inv-modal-status ${batchStatus.type}`}>{batchStatus.msg}</div>}
             <form onSubmit={handleBatchSubmit} className="inv-modal-form">
-              <div className="inv-modal-input-group">
-                <label>Remaining Quantity (kg)</label>
-                <input type="number" name="remaining_quantity" value={batchForm.remaining_quantity} onChange={handleBatchChange} step="0.01" min="0" required />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Expiration Date</label>
-                <input type="date" name="expiration_date" value={batchForm.expiration_date} onChange={handleBatchChange} required />
-              </div>
-              <div className="inv-modal-input-group">
-                <label>Supplier</label>
-                <input type="text" name="supplier_name" value={batchForm.supplier_name} onChange={handleBatchChange} required />
-              </div>
+              {EDIT_BATCH_FIELDS.map(({ name, label, type, step, min }) => (
+                <div className="inv-modal-input-group" key={name}>
+                  <label>{label}</label>
+                  <input type={type} name={name} value={batchForm[name]} onChange={handleChange(setBatchForm)} step={step} min={min} required />
+                </div>
+              ))}
               <button type="submit" className="inv-modal-submit-btn" onClick={createRipple}>Save Changes</button>
             </form>
           </div>
@@ -323,13 +290,10 @@ const InventoryItem = () => {
               <h3>Deactivate SKU</h3>
               <button className="inv-modal-close" onClick={() => setShowDeactivate(false)}>✕</button>
             </div>
-            {deactivateStatus.msg && (
-              <div className={`inv-modal-status ${deactivateStatus.type}`}>{deactivateStatus.msg}</div>
-            )}
+            {deactivateStatus.msg && <div className={`inv-modal-status ${deactivateStatus.type}`}>{deactivateStatus.msg}</div>}
             <div className="inv-modal-form">
               <p style={{ color: "#000", fontSize: "0.9rem" }}>
-                Are you sure you want to deactivate <strong>{inventoryInfo?.product_name}</strong> ({sku})?
-                It will no longer appear in the inventory.
+                Are you sure you want to deactivate <strong>{inventoryInfo?.product_name}</strong> ({sku})? It will no longer appear in the inventory.
               </p>
               <button className="inv-modal-deactivate-btn" onClick={(e) => { createRipple(e); handleDeactivate(); }}>
                 Yes, Deactivate

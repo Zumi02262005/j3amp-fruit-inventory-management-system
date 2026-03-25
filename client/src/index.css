@@ -1,4 +1,3 @@
-/* ── Global reset ── */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,7 +7,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Global link reset — fixes iOS blue link override ── */
 a,
 a:link,
 a:visited {
@@ -17,7 +15,6 @@ a:visited {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Base body ── */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
     'Helvetica Neue', sans-serif;
@@ -36,7 +33,6 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ── Constrain app to phone width ── */
 #root {
   max-width: 430px;
   margin: 0 auto;

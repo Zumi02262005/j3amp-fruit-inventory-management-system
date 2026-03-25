@@ -1,7 +1,9 @@
+//reportController.jsx
+//This module contains the functionalities regarding reports
 const { promisePool } = require("../config/database");
 const { logActivity } = require("../utils/logger");
 
-// ---- Generate Report ----
+//Generate Report
 const generateReport = async (req, res) => {
   try {
     const { start_date, end_date } = req.body;
@@ -105,7 +107,7 @@ const generateReport = async (req, res) => {
   }
 };
 
-// ---- Get All Reports ----
+//Get All Reports
 const getAllReports = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -124,7 +126,7 @@ const getAllReports = async (req, res) => {
   }
 };
 
-// ---- Get Single Report ----
+//Get Single Report
 const getReport = async (req, res) => {
   try {
     const { report_id } = req.params;
@@ -142,7 +144,7 @@ const getReport = async (req, res) => {
   }
 };
 
-// ---- Get Report Transactions ----
+//Get Report Transactions
 const getReportTransactions = async (req, res) => {
   try {
     const { report_id } = req.params;
@@ -170,7 +172,7 @@ const getReportTransactions = async (req, res) => {
   }
 };
 
-// ---- Update Report ----
+//Update Report
 const updateReport = async (req, res) => {
   try {
     const { report_id } = req.params;
@@ -194,7 +196,7 @@ const updateReport = async (req, res) => {
   }
 };
 
-// ---- Delete Report ----
+//Delete Report
 const deleteReport = async (req, res) => {
   try {
     const { report_id } = req.params;

@@ -1,3 +1,5 @@
+//transactionController.jsx
+//This module contains the functionalities regarding dispatching and receiving stock
 const { promisePool } = require("../config/database");
 const { logActivity } = require("../utils/logger");
 const { runAlertGeneration } = require("./alertController");
@@ -90,7 +92,7 @@ const dispatchStock = async (req, res) => {
     const batchAvailable = parseFloat(requestedBatch[0].remaining_quantity);
     const requestedQty = parseFloat(quantity);
 
-    // ---- Validate against selected batch only ----
+    // Validate against selected batch only
     if (requestedQty > batchAvailable) {
       await connection.rollback();
       return res.status(400).json({
@@ -143,6 +145,7 @@ const dispatchStock = async (req, res) => {
   }
 };
 
+//Gets all of the transactions
 const getAllTransactions = async (req, res) => {
   if (!req.user || req.user.role !== 'admin') {
     return res.status(403).json({ success: false, message: 'Forbidden' });

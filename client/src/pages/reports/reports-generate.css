@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-x: hidden;
 }
 
 .reports-generate-header {
@@ -37,13 +38,13 @@
   margin: 0;
 }
 
-/* ── Reuse form-wrapper / form-input-group from dispatch-stock ── */
 .form-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .reports-generate-form {
@@ -55,6 +56,7 @@
   max-width: 500px;
   color: #000;
   font-family: Inter, sans-serif;
+  box-sizing: border-box;
 }
 
 .form-input-group {
@@ -78,6 +80,7 @@
   font-family: Inter, sans-serif;
   font-size: 16px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   color: #000;
 }
@@ -89,7 +92,6 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ── Status messages ── */
 .status-message {
   padding: 10px 14px;
   border-radius: 8px;
@@ -102,7 +104,6 @@
 .status-message.error   { background: #ffebee; color: #c62828; }
 .status-message.loading { background: #fff8e1; color: #f57f17; }
 
-/* ── Generate button — matches dispatch-button style ── */
 @keyframes ripple {
   from { transform: scale(0); opacity: 0.5; }
   to   { transform: scale(4); opacity: 0; }

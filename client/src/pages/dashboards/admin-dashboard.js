@@ -1,16 +1,23 @@
+// admin-dashboard.jsx
+// This page displays the dashboard for the admin user
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI, logsAPI, boAPI } from "../../services/api";
 import NotificationPanel from "../../components/NotificationPanel";
 import "./admin-dashboard.css";
+
+// Icons
 import profile_icon from "../../assets/icons/profile_icon.svg";
 import generate_report_icon from "../../assets/icons/generate_report_icon.svg";
 import manage_users_icon from "../../assets/icons/manage_users_icon.svg";
 import backup_data_icon from "../../assets/icons/backup_icon.svg";
 import view_inventory_icon from "../../assets/icons/view_inventory_icon.svg";
 
+// --- Helpers & Hooks ---
+const fmtDate = (d) => new Date(d).toLocaleDateString();
+
 const useRipple = () => {
-  const createRipple = useCallback((e) => {
+  return useCallback((e) => {
     const btn = e.currentTarget;
     const circle = document.createElement("span");
     const rect = btn.getBoundingClientRect();
@@ -20,73 +27,48 @@ const useRipple = () => {
     btn.appendChild(circle);
     circle.addEventListener("animationend", () => circle.remove());
   }, []);
-  return createRipple;
 };
+
+// --- Configurations ---
+const ADMIN_ACTIONS = [
+  { id: "generate-report-card", textId: "generate-report-text", path: "/reports", icon: generate_report_icon, label: "Generate report" },
+  { id: "manage-users-card", textId: "manage-users-text", path: "/users", icon: manage_users_icon, label: "Manage users" },
+  { id: "logs-card", textId: "logs-text", path: "/admin-logs", icon: backup_data_icon, label: "Logs" },
+  { id: "view-inventory-card", textId: "view-inventory-text", path: "/inventory-home", icon: view_inventory_icon, label: "View inventory" },
+];
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const createRipple = useRipple();
+
   const [totalStock, setTotalStock] = useState(null);
   const [totalCategories, setTotalCategories] = useState(null);
   const [expiringCount, setExpiringCount] = useState(null);
   const [recentActivity, setRecentActivity] = useState([]);
   const [pendingBOCount, setPendingBOCount] = useState(0);
 
-  const createRipple = useRipple();
-
   useEffect(() => {
-    const fetchTotalStock = async () => {
-      try {
-        const response = await inventoryAPI.getInventoryTotal();
-        setTotalStock(response.data.data);
-      } catch (err) {
-        setTotalStock("N/A");
-      }
-    };
+    // Fire all independent requests concurrently to speed up initial render
+    inventoryAPI.getInventoryTotal()
+      .then((res) => setTotalStock(res.data.data))
+      .catch(() => setTotalStock("N/A"));
 
-    const fetchCategories = async () => {
-      try {
-        const response = await inventoryAPI.getInventoryCategories();
-        setTotalCategories(response.data.data);
-      } catch (err) {
-        setTotalCategories("N/A");
-      }
-    };
+    inventoryAPI.getInventoryCategories()
+      .then((res) => setTotalCategories(res.data.data))
+      .catch(() => setTotalCategories("N/A"));
 
-    const fetchExpiringBatches = async () => {
-      try {
-        const response = await inventoryAPI.getExpiringBatches();
-        setExpiringCount(response.data.data);
-      } catch (err) {
-        setExpiringCount("N/A");
-      }
-    };
+    inventoryAPI.getExpiringBatches()
+      .then((res) => setExpiringCount(res.data.data))
+      .catch(() => setExpiringCount("N/A"));
 
-    const fetchRecentActivity = async () => {
-      try {
-        const response = await logsAPI.recentActivity();
-        setRecentActivity(response.data.data);
-      } catch (err) {
-        setRecentActivity([]);
-      }
-    };
+    logsAPI.recentActivity()
+      .then((res) => setRecentActivity(res.data.data))
+      .catch(() => setRecentActivity([]));
 
-    const fetchPendingBO = async () => {
-      try {
-        const response = await boAPI.getPendingCount();
-        setPendingBOCount(response.data.data);
-      } catch (err) {
-        setPendingBOCount(0);
-      }
-    };
-
-    fetchRecentActivity();
-    fetchTotalStock();
-    fetchCategories();
-    fetchExpiringBatches();
-    fetchPendingBO();
+    boAPI.getPendingCount()
+      .then((res) => setPendingBOCount(res.data.data))
+      .catch(() => setPendingBOCount(0));
   }, []);
-
-  const handleViewInventory = () => navigate("/inventory-home");
 
   return (
     <div className="dashboard-container page-with-navbar">
@@ -94,14 +76,9 @@ const AdminDashboard = () => {
         <p className="dashboard-overview-label">Overview</p>
 
         {/* Requests button with pending badge */}
-        <button
-          className="requests-button"
-          onClick={() => navigate("/bo-requests")}
-        >
+        <button className="requests-button" onClick={() => navigate("/bo-requests")}>
           Requests
-          {pendingBOCount > 0 && (
-            <span className="requests-badge">{pendingBOCount}</span>
-          )}
+          {pendingBOCount > 0 && <span className="requests-badge">{pendingBOCount}</span>}
         </button>
 
         <NotificationPanel />
@@ -121,15 +98,11 @@ const AdminDashboard = () => {
           <div className="stock-subsection">
             <div className="categories-section">
               <p className="categories">Categories: </p>
-              <p className="categories-count">
-                {totalCategories !== null ? totalCategories : "..."}
-              </p>
+              <p className="categories-count">{totalCategories !== null ? totalCategories : "..."}</p>
             </div>
             <div className="expiring-section">
               <p className="expiring">Expiring: </p>
-              <p className="expiring-count">
-                {expiringCount !== null ? expiringCount : "..."}
-              </p>
+              <p className="expiring-count">{expiringCount !== null ? expiringCount : "..."}</p>
             </div>
           </div>
         </div>
@@ -146,7 +119,7 @@ const AdminDashboard = () => {
                     <span className="activity-action"><strong>{activity.action}</strong> - </span>
                     <span className="activity-user">{activity.username} - </span>
                     <span className="activity-details">{activity.details} - </span>
-                    <span className="activity-date">{new Date(activity.log_date).toLocaleDateString()}</span>
+                    <span className="activity-date">{fmtDate(activity.log_date)}</span>
                   </li>
                 </ul>
               ))
@@ -155,22 +128,12 @@ const AdminDashboard = () => {
         </div>
 
         <div id="admin-quick-actions">
-          <button id="generate-report-card" onClick={(e) => { createRipple(e); navigate("/reports"); }}>
-            <img src={generate_report_icon} alt="Generate Report" className="action-icon" />
-            <p id="generate-report-text">Generate report</p>
-          </button>
-          <button id="manage-users-card" onClick={(e) => { createRipple(e); navigate("/users"); }}>
-            <img src={manage_users_icon} alt="Manage Users" className="action-icon" />
-            <p id="manage-users-text">Manage users</p>
-          </button>
-          <button id="logs-card" onClick={(e) => { createRipple(e); navigate("/admin-logs"); }}>
-            <img src={backup_data_icon} alt="Logs" className="action-icon" />
-            <p id="logs-text">Logs</p>
-          </button>
-          <button id="view-inventory-card" onClick={(e) => { createRipple(e); handleViewInventory(); }}>
-            <img src={view_inventory_icon} alt="View Inventory" className="action-icon" />
-            <p id="view-inventory-text">View inventory</p>
-          </button>
+          {ADMIN_ACTIONS.map(({ id, textId, path, icon, label }) => (
+            <button key={id} id={id} onClick={(e) => { createRipple(e); navigate(path); }}>
+              <img src={icon} alt={label} className="action-icon" />
+              <p id={textId}>{label}</p>
+            </button>
+          ))}
         </div>
       </div>
     </div>

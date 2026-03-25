@@ -1,23 +1,19 @@
-/* ── Reset & Base ── */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  /* Fallback ensures it stays clean even if Inter fails to load */
   font-family: inherit;
 }
 
-/* Force body to match dashboard so no grey lines appear */
 html,
 body {
   background-color: #efefef;
   margin: 0;
   padding: 0;
-  height: 100%; /* Important for internal scrolling */
+  height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ── Global & Layout ── */
 .dashboard-container {
   min-height: 100vh;
   background-color: #efefef;
@@ -27,14 +23,13 @@ body {
 }
 
 .dashboard-header {
-  /* CHANGE: Use padding instead of margin for the top to prevent "Grey Rectangles" */
   padding: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
   margin: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  background-color: #efefef; /* Matches container */
+  background-color: #efefef;
 }
 
 .dashboard-content {
@@ -47,8 +42,6 @@ body {
   width: 100%;
 }
 
-/* ── The Scrolling Fix ── */
 .page-with-navbar {
-  /* This creates a physical buffer at the bottom of the page */
   padding-bottom: 120px !important;
 }

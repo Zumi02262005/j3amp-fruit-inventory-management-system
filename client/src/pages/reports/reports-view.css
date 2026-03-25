@@ -51,7 +51,6 @@ body {
   padding-bottom: 3rem;
 }
 
-/* ── Loader / Error ── */
 .reports-view-loader,
 .reports-view-error {
   padding: 2rem;
@@ -65,7 +64,6 @@ body {
   color: #c62828;
 }
 
-/* ── Empty state ── */
 .reports-view-empty {
   display: flex;
   flex-direction: column;
@@ -92,7 +90,6 @@ body {
   transform: translateY(-2px);
 }
 
-/* ── Report card — matches inventory card style ── */
 .report-card {
   background: #fff;
   border-radius: 20px;
@@ -123,7 +120,6 @@ body {
   color: #000;
 }
 
-/* ── Action buttons row ── */
 .report-card-actions {
   display: flex;
   gap: 0.6rem;
@@ -184,7 +180,6 @@ body {
   background: #e55a00;
 }
 
-/* ── Modal overlay — matches inventory-home pattern ── */
 @keyframes modalSpring {
   0%   { opacity: 0; transform: scale(0.82) translateY(24px); }
   60%  { transform: scale(1.03) translateY(-4px); }
@@ -309,7 +304,6 @@ body {
   border-color: #ff6200;
 }
 
-/* ── Modal submit / delete buttons ── */
 .rpt-modal-submit-btn {
   background: #ff6200;
   color: #fff;
@@ -352,7 +346,6 @@ body {
   animation: ripple 0.5s linear forwards;
 }
 
-/* ── Delete confirm ── */
 .rpt-modal-confirm-text {
   padding: 1rem 1.5rem 0.5rem;
   font: 400 0.9rem/1.6 Inter, sans-serif;

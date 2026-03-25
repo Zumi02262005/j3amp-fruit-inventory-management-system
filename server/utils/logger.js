@@ -1,5 +1,8 @@
+//logger.jsx
+//This module contains the functionalities regarding activity logging
 const { promisePool } = require("../config/database");
 
+// Inserts a new activity log into the database or falls back to console logging if the database query fails
 const logActivity = async (userId, action, details) => {
   try {
     await promisePool.execute(
@@ -16,6 +19,7 @@ const logActivity = async (userId, action, details) => {
   }
 };
 
+// Retrieves the 10 most recent activity logs across the system for admin viewing
 const recentActivity = async (req, res) => {
   if (!req.user || req.user.role !== 'admin'){
     return res.status(403).json({
@@ -48,6 +52,7 @@ const recentActivity = async (req, res) => {
   }
 }
 
+// Retrieves the 10 most recent stock receiving logs for a specific user
 const recentReceipts = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({
@@ -90,6 +95,7 @@ const recentReceipts = async (req, res) => {
   }
 };
 
+// Retrieves the complete history of activity logs across the system for admin viewing
 const allActivities = async (req, res) => {
   if (!req.user || req.user.role !== 'admin'){
     return res.status(403).json({
@@ -119,6 +125,7 @@ const allActivities = async (req, res) => {
   }
 }
 
+// Retrieves the 10 most recent stock dispatching logs for a specific user
 const recentDispatches = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ success: false, message: 'Unauthorized' });
@@ -148,6 +155,7 @@ const recentDispatches = async (req, res) => {
   }
 };
 
+// Retrieves the comprehensive details of a specific activity log entry by its ID
 const logsDetails = async (req, res) => {
   try {
     const { log_id } = req.params;

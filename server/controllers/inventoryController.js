@@ -1,8 +1,9 @@
-const bcrypt = require("bcrypt");
+//inventoryController.jsx
+//This module contains the functionalities regarding inventory tracking
 const { promisePool } = require("../config/database");
 const { logActivity } = require("../utils/logger");
 
-// View Inventory
+// Retrieves all active inventory items with their total stock from active batches
 const viewInventory = async (req, res) => {
   try {
     const query = `
@@ -26,6 +27,7 @@ const viewInventory = async (req, res) => {
   }
 };
 
+// Calculates the grand total of remaining quantity across all active batches
 const getInventoryTotal = async (req, res) => {
   try {
     const [[{ grand_total }]] = await promisePool.execute(
@@ -38,6 +40,7 @@ const getInventoryTotal = async (req, res) => {
   }
 };
 
+// Counts the total number of distinct categories for active inventory items
 const getInventoryCategories = async (req, res) => {
   try {
     const [[{ total_categories }]] = await promisePool.execute(
@@ -50,6 +53,7 @@ const getInventoryCategories = async (req, res) => {
   }
 };
 
+// Counts active batches that are expiring within the next 7 days
 const getExpiringBatches = async (req, res) => {
   try {
     const [[{ expiring_count }]] = await promisePool.execute(
@@ -65,6 +69,7 @@ const getExpiringBatches = async (req, res) => {
   }
 };
 
+// Counts the number of inventory items whose total stock is at or below their reorder point
 const getLowStockQuantity = async (req, res) => {
   try {
     const [[{ low_stock_count }]] = await promisePool.execute(
@@ -85,6 +90,7 @@ const getLowStockQuantity = async (req, res) => {
   }
 };
 
+// Retrieves the details of inventory items with stock at or below their reorder point
 const getLowStockItems = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -103,6 +109,7 @@ const getLowStockItems = async (req, res) => {
   }
 };
 
+// Retrieves active batches expiring within 7 days along with their product names
 const getExpiringItems = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -119,6 +126,7 @@ const getExpiringItems = async (req, res) => {
   }
 };
 
+// Retrieves details of all batches marked as expired, ordered by expiration date
 const getExpiredItems = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -142,6 +150,7 @@ const getExpiredItems = async (req, res) => {
   }
 };
 
+// Retrieves the total count of batches currently marked as expired
 const getExpiredCount = async (req, res) => {
   try {
     const [[{ expired_count }]] = await promisePool.execute(
@@ -154,6 +163,7 @@ const getExpiredCount = async (req, res) => {
   }
 };
 
+// Internal function to update active batches to expired status if their expiration date has passed
 const runAutoExpire = async () => {
   try {
     const [result] = await promisePool.execute(
@@ -170,6 +180,7 @@ const runAutoExpire = async () => {
   }
 };
 
+// Endpoint handler to manually trigger the auto-expire process and return the result
 const autoExpireBatches = async (req, res) => {
   try {
     const expired = await runAutoExpire();
@@ -184,6 +195,7 @@ const autoExpireBatches = async (req, res) => {
   }
 };
 
+// Retrieves all active batches for a specific SKU
 const getBatches = async (req, res) => {
   try {
     const { sku } = req.params;
@@ -207,6 +219,7 @@ const getBatches = async (req, res) => {
   }
 };
 
+// Retrieves a list of active SKUs with stock status and expiration warnings for general dropdown selection
 const getSkuDropdown = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -229,6 +242,7 @@ const getSkuDropdown = async (req, res) => {
   }
 };
 
+// Retrieves active SKUs that have stock greater than 0 specifically for dispatch dropdowns
 const getSkuDropdownDispatch = async (req, res) => {
   try {
     const [rows] = await promisePool.execute(
@@ -252,7 +266,7 @@ const getSkuDropdownDispatch = async (req, res) => {
   }
 };
 
-// ---- ADMIN: Create new SKU ----
+// Creates a new SKU entry in the inventory and logs the admin activity
 const createSku = async (req, res) => {
   try {
     const { sku, product_name, category, supplier, reorder_point } = req.body;
@@ -291,7 +305,7 @@ const createSku = async (req, res) => {
   }
 };
 
-// ---- ADMIN: Update inventory item info ----
+// Updates product details for an existing SKU and logs the admin activity
 const updateInventoryItem = async (req, res) => {
   try {
     const { sku } = req.params;
@@ -331,7 +345,7 @@ const updateInventoryItem = async (req, res) => {
   }
 };
 
-// ---- ADMIN: Deactivate SKU ----
+// Deactivates a SKU and sets its active batches to depleted, logging the admin activity
 const deactivateSku = async (req, res) => {
   try {
     const { sku } = req.params;
@@ -365,7 +379,7 @@ const deactivateSku = async (req, res) => {
   }
 };
 
-// ---- ADMIN: Update full batch info ----
+// Updates details of a specific batch and sets it to depleted if quantity is zero, logging the admin activity
 const updateBatch = async (req, res) => {
   try {
     const { batch_id } = req.params;
@@ -408,7 +422,7 @@ const updateBatch = async (req, res) => {
   }
 };
 
-// ---- Get count of SKUs with zero stock ----
+// Counts the number of active inventory items that have zero total stock
 const getNoStockCount = async (req, res) => {
   try {
     const [[{ no_stock_count }]] = await promisePool.execute(
@@ -429,7 +443,7 @@ const getNoStockCount = async (req, res) => {
   }
 };
 
-// ---- Write off expired batches (outbound) ----
+// Allows outbound users to write off expired batches, setting them to depleted and logging the activity
 const writeOffBatches = async (req, res) => {
   const { batch_ids } = req.body;
   const userId = req.user.userId;

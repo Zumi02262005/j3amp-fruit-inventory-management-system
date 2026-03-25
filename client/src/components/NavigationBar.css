@@ -27,7 +27,6 @@
   width: 100%;
 }
 
-/* ── Nav item animations ── */
 .navbar-links li {
   flex: 1;
   display: flex;
@@ -59,7 +58,6 @@
   width: 100%;
 }
 
-/* Active pill background */
 .navbar-links li a.active,
 .navbar-links li a.active:link,
 .navbar-links li a.active:visited {
@@ -77,7 +75,6 @@
   transition: transform 0.1s ease;
 }
 
-/* ── Icon animations ── */
 .navbar-links li a svg {
   width: 22px;
   height: 22px;

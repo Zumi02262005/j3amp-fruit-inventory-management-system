@@ -1,3 +1,5 @@
+//authController.jsx
+//This module contains the functionalities regarding authorization
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { promisePool } = require("../config/database");

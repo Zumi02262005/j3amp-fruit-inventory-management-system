@@ -1,3 +1,5 @@
+// outbound-dashboard.jsx
+// This page displays the dashboard for the outbound user
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { inventoryAPI } from "../../services/api";
@@ -7,7 +9,6 @@ import "./outbound-dashboard.css";
 import profile_icon from "../../assets/icons/profile_icon.svg";
 import dispatch_icon from "../../assets/icons/dispatch_icon.svg";
 
-/* ── Ripple helper ── */
 const useRipple = () => {
   const createRipple = useCallback((e) => {
     const btn = e.currentTarget;

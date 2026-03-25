@@ -9,7 +9,6 @@ body {
   flex-direction: column;
 }
 
-/* ── Header ── */
 .user-details-header {
   display: flex;
   align-items: center;
@@ -17,7 +16,6 @@ body {
   margin: clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem) 0;
 }
 
-/* ── Link animations ── */
 .user-details-back {
   display: inline-block;
   color: #ff6200;
@@ -53,7 +51,6 @@ body {
   margin: 0;
 }
 
-/* ── Content ── */
 .user-details-content {
   padding: clamp(1.25rem, 4vw, 2rem);
   max-width: 480px;
@@ -65,7 +62,6 @@ body {
   gap: 1.25rem;
 }
 
-/* ── Profile Card ── */
 .user-profile-card {
   background: linear-gradient(86deg, #ff6200 22%, #ff8c45 92%);
   border-radius: 20px;
@@ -87,7 +83,6 @@ body {
   line-height: 1.8;
 }
 
-/* ── Activity Card ── */
 .user-activity-card {
   background: #fff;
   border-radius: 20px;
@@ -152,7 +147,6 @@ body {
   margin-top: 0.75rem;
 }
 
-/* ── Link animations ── */
 .view-full-history-link {
   display: inline-block;
   color: #ff6200;
@@ -182,7 +176,6 @@ body {
   color: #cc4e00;
 }
 
-/* ── Close button animation ── */
 .user-history-close {
   background: none;
   border: none;
