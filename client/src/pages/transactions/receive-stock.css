@@ -115,7 +115,18 @@
   opacity: 0;
 }
 
-.custom-sku-dropdown {
+/* iOS Safari fix: date inputs ignore box-sizing/width unless appearance is reset */
+.form-input-group input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* FIX: was .custom-sku-dropdown — must match the className used in receive-stock.js */
+.custom-dropdown {
   position: relative;
   width: 100%;
 }

@@ -4,7 +4,7 @@ A role-based web application for managing fruit inventory, tracking stock levels
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 - [For Users](#for-users)
   - [What This System Does](#what-this-system-does)
   - [Roles & Access](#roles--access)

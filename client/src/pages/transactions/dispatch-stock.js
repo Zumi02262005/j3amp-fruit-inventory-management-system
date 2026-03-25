@@ -131,7 +131,9 @@ const DispatchStock = () => {
             {isOpen && (
               <div className="sku-dropdown-list">
                 {list.map((item, idx) => {
-                  const id = item.sku || item.batch_id; // Works for both SKU and Batch objects
+                  // FIX: Use explicit type check instead of || to prevent batch objects
+                  // from resolving to item.sku when item.batch_id is the correct field.
+                  const id = type === 'sku' ? item.sku : item.batch_id;
                   return (
                     <div
                       key={id || idx}

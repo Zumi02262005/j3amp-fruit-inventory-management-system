@@ -94,8 +94,16 @@ const ReceiveStock = () => {
               <div className="sku-dropdown-selected disabled">Loading SKUs...</div>
             ) : (
               <>
-                {/* Hidden input to enforce native HTML validation for required field */}
-                <input type="text" name="sku" value={formData.sku} required readOnly style={{ display: "none" }} />
+                {/* FIX: display:none hides the field from browser validation entirely.
+                    Using opacity/height:0 keeps it in the DOM so required is enforced. */}
+                <input
+                  type="text"
+                  name="sku"
+                  value={formData.sku}
+                  required
+                  readOnly
+                  style={{ opacity: 0, position: "absolute", height: 0, pointerEvents: "none" }}
+                />
                 
                 <div
                   className={`sku-dropdown-selected ${dropdownOpen ? "open" : ""}`}
