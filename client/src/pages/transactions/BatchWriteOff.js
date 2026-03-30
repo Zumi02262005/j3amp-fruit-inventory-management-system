@@ -68,7 +68,7 @@ const BatchWriteOff = () => {
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (!e.target.closest(".custom-sku-dropdown")) {
+      if (!e.target.closest(".custom-dropdown")) {
         setSkuDropdownOpen(false);
         setBatchDropdownOpen(false);
       }
@@ -138,11 +138,11 @@ const BatchWriteOff = () => {
           <div className="form-input-group">
             <label>SKU</label>
             {skuLoading ? (
-              <div className="custom-sku-dropdown">
+              <div className="custom-dropdown">
                 <div className="sku-dropdown-selected disabled">Loading SKUs...</div>
               </div>
             ) : (
-              <div className="custom-sku-dropdown">
+              <div className="custom-dropdown">
                 <input type="text" name="sku" value={formData.sku} required readOnly style={{ display: "none" }} />
                 <div
                   className={`sku-dropdown-selected ${skuDropdownOpen ? "open" : ""}`}
@@ -176,11 +176,11 @@ const BatchWriteOff = () => {
           <div className="form-input-group">
             <label>Batch</label>
             {batchLoading ? (
-              <div className="custom-sku-dropdown">
+              <div className="custom-dropdown">
                 <div className="sku-dropdown-selected disabled">Loading batches...</div>
               </div>
             ) : (
-              <div className="custom-sku-dropdown">
+              <div className="custom-dropdown">
                 <input type="text" name="batch_id" value={formData.batch_id} required readOnly style={{ display: "none" }} />
                 <div
                   className={`sku-dropdown-selected ${!formData.sku ? "disabled" : ""} ${batchDropdownOpen ? "open" : ""}`}
